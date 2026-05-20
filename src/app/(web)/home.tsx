@@ -1,13 +1,9 @@
-import { Text, View } from "react-native";
+import { View, Text } from "react-native";
 
 export default function WebHome() {
-
-    return (
-        <View className="flex-1 bg-white p-5">
-            <Text className="text-xl font-bold mb-4">
-                WebHome Index
-            </Text>
-
-        </View>
-    );
+  return (
+    <View className="flex-1 items-center justify-center">
+      <Text>✅ WEB HOME OK</Text>
+    </View>
+  );
 }

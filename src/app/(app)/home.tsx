@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity } from "react-native";
 import { createBooking, getSlots, Slot } from "@/features/booking/api";
+import { SafeAreaView } from "react-native-safe-area-context";
+
 
 export default function Home() {
+    
     const [slots, setSlots] = useState<Slot[]>([]);
 
     const handleBooking = async (time: string) => {
@@ -27,7 +30,7 @@ export default function Home() {
     }, []);
 
     return (
-        <View className="flex-1 bg-white p-5">
+        <SafeAreaView className="flex-1 bg-white p-5">
             <Text className="text-xl font-bold mb-4">
                 🐾 Vet Booking
             </Text>
@@ -50,6 +53,6 @@ export default function Home() {
                 </TouchableOpacity>
 
             ))}
-        </View>
+        </SafeAreaView>
     );
 }
