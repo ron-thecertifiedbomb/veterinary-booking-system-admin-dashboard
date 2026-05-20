@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.shadow-glow {
+  shadow-color: #00e0ff;
+  shadow-opacity: 0.35;
+  shadow-radius: 20px;
+}
