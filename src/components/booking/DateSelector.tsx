@@ -40,7 +40,10 @@ export default function DateSelector({
                 <Calendar
                     current={date}
                     minDate={new Date().toLocaleDateString("en-CA")}
-                    onDayPress={(day) => onDateChange(day.dateString)}
+                    onDayPress={(day) => {
+                        onDateChange(day.dateString);
+                        onContinue?.();
+                    }}
                     markedDates={{
                         [date]: {
                             selected: true,
@@ -48,11 +51,16 @@ export default function DateSelector({
                             selectedTextColor: "#ffffff",
                         },
                     }}
-                />
+
+                    // ✅ ADD THIS
+                    theme={{
+                        arrowColor: "#000000",
+  }}
+/>
 
             </View>
 
-            {onContinue && (
+            {/* {onContinue && (
                 <TouchableOpacity
                     onPress={onContinue}
                     className="bg-surfaceSoft border border-border rounded-xl py-4 mt-6"
@@ -61,7 +69,7 @@ export default function DateSelector({
                         Continue Booking
                     </Text>
                 </TouchableOpacity>
-            )}
+            )} */}
         </View>
     );
 }
