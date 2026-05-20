@@ -15,25 +15,48 @@ export default function Navbar({ items }: NavbarProps) {
     const path = usePathname();
 
     return (
-        <View className="w-full bg-white px-6 py-4 flex-row justify-between">
-            <Text className="text-xl font-bold">🐾 Vet Booking</Text>
+        <View className="w-full bg-surface  ">
 
-            <View className="flex-row gap-4">
-                {items.map((item) => (
-                    <TouchableOpacity
-                        key={item.path}
-                        onPress={() => router.push(item.path)}
-                    >
-                        <Text
-                            style={{
-                                color: path === item.path ? "blue" : "black",
-                            }}
-                        >
-                            {item.label}
-                        </Text>
-                    </TouchableOpacity>
-                ))}
+            {/* ✅ CENTERED CONTAINER */}
+            <View className="max-w-md mx-auto w-full px-6 py-4 flex-row items-center justify-between">
+
+                {/* ✅ BRAND */}
+                <Text className="text-text-primary text-base font-semibold">
+                    Vet Booking
+                </Text>
+
+                {/* ✅ NAV LINKS */}
+                <View className="flex-row items-center gap-6">
+                    {items.map((item) => {
+                        const active = path === item.path;
+
+                        return (
+                            <TouchableOpacity
+                                key={item.path}
+                                onPress={() => router.push(item.path)}
+                            >
+                                <View className="items-center">
+                                    <Text
+                                        className={`text-sm font-medium ${active
+                                                ? "text-text-primary"
+                                                : "text-text-secondary"
+                                            }`}
+                                    >
+                                        {item.label}
+                                    </Text>
+
+                                    {/* ✅ subtle underline */}
+                                    {active && (
+                                        <View className="h-[1px] w-full bg-text-primary rounded-full" />
+                                    )}
+                                </View>
+                            </TouchableOpacity>
+                        );
+                    })}
+                </View>
+
             </View>
         </View>
     );
 }
+``
