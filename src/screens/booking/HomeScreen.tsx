@@ -1,23 +1,18 @@
-import { useEffect, useState } from "react";
-import { Text, View, Platform } from "react-native";
-
-import { useRouter } from "expo-router";
-
-import DateSelector from "@/components/booking/DateSelector";
 import BookingModal from "@/components/booking/BookingModal";
-
-import { formatDate, getTodayDate } from "@/utils/date";
-import { useCreateBooking } from "@/hooks/useCreateBooking";
+import DateSelector from "@/components/booking/DateSelector";
 import { useBookingBootstrap } from "@/hooks/useBookingBootstrap";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useCreateBooking } from "@/hooks/useCreateBooking";
+import { formatDate, getTodayDate } from "@/utils/date";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import { Platform, Text, View } from "react-native";
 
 export default function HomeScreen() {
-    const router = useRouter();
 
+    const router = useRouter();
     const [date, setDate] = useState(getTodayDate());
     const [showModal, setShowModal] = useState(false);
     const [modalChecking, setModalChecking] = useState(false);
-
     const { slots, loading } = useBookingBootstrap(date);
 
     const {
@@ -30,18 +25,15 @@ export default function HomeScreen() {
 
     useEffect(() => {
         if (!success) return;
-
         const timer = setTimeout(() => {
             resetSuccess();
         }, 2500);
-
         return () => clearTimeout(timer);
     }, [success, resetSuccess]);
 
     useEffect(() => {
         if (!showModal) return;
         if (loading) return;
-
         setModalChecking(false);
     }, [showModal, loading]);
 
@@ -54,34 +46,25 @@ export default function HomeScreen() {
             </View>
         );
     }
-
     return (
-        <SafeAreaView className="flex-1 bg-background">
-            <View
-                className={`flex-1 items-center px-6 pb-10 ${Platform.OS === "web" ? "pt-8" : "pt-8"
-                    }`}
-            >
-                <View className="w-full max-w-md">
+        <View className="flex-1 bg-background items-center ">
+                <View className="w-full max-w-md pt-24">
                     <View className="mb-6">
                         <Text className="text-2xl font-semibold text-text-primary">
-                            Book Appointment
+                            Book an appointment
                         </Text>
-
                         <Text className="text-sm leading-5 text-text-secondary mt-1.5">
                             Select a date to schedule your pet’s visit.
                         </Text>
                     </View>
-
                     <View className="bg-surface border border-border rounded-2xl px-5 py-4 mb-5">
                         <Text className="text-[11px] text-text-muted uppercase tracking-wide mb-1.5">
                             Selected Date
                         </Text>
-
                         <Text className="text-base font-semibold text-text-primary">
                             {formatDate(date)}
                         </Text>
                     </View>
-
                     <DateSelector
                         date={date}
                         onDateChange={(newDate) => {
@@ -91,8 +74,7 @@ export default function HomeScreen() {
                         }}
                     />
                 </View>
-            </View>
-
+    
             <BookingModal
                 visible={showModal}
                 slots={slots}
@@ -103,32 +85,29 @@ export default function HomeScreen() {
                     setModalChecking(false);
                 }}
                 onSubmit={async (data) => {
-                    await createBooking({
+                const response = await createBooking({
                         ...data,
                         date,
                     });
-
                     setShowModal(false);
                     setModalChecking(false);
-
                     const successPath =
                         Platform.OS === "web"
                             ? "/(web)/booking-success"
                             : "/(app)/booking-success";
-
                     router.push({
                         pathname: successPath,
                         params: {
-                            ownerName: data.ownerName,
-                            petName: data.petName,
-                            serviceType: data.serviceType,
+                        bookingCode: response.bookingCode,
+                            ownerName: response.ownerName,
+                            petName: response.petName,
+                            serviceType: response.serviceType,
                             date,
-                            time: data.time,
+                            time: response.time,
                         },
                     });
                 }}
             />
-
             {error && (
                 <View className="absolute bottom-10 left-0 right-0 items-center px-6">
                     <View className="bg-red-50 border border-red-100 rounded-xl px-4 py-3">
@@ -138,6 +117,6 @@ export default function HomeScreen() {
                     </View>
                 </View>
             )}
-        </SafeAreaView>
+        </View>
     );
 }

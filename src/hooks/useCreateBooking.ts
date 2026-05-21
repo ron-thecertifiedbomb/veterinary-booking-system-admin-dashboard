@@ -1,6 +1,6 @@
-import { useState } from "react";
 import { API } from "@/utils/config/api";
 import { logger } from "@/utils/logger";
+import { useState } from "react";
 
 type Payload = {
   ownerName: string;
@@ -10,16 +10,20 @@ type Payload = {
   time: string;
 };
 
+export type BookingResponse = Payload & {
+  bookingCode: string;
+};
+
 export const useCreateBooking = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false); 
+  const [success, setSuccess] = useState(false);
 
-  const createBooking = async (payload: Payload) => {
+  const createBooking = async (payload: Payload): Promise<BookingResponse> => {
     try {
       setLoading(true);
       setError(null);
-      setSuccess(false); 
+      setSuccess(false);
 
       logger.info("Creating booking", payload);
 
@@ -43,13 +47,18 @@ export const useCreateBooking = () => {
         throw new Error("Booking failed");
       }
 
-      const data = await res.json();
+      const data = (await res.json()) as { bookingCode: string };
 
-      logger.info("Booking success", data);
+      const responseWithPayload: BookingResponse = {
+        ...payload,
+        bookingCode: data.bookingCode,
+      };
 
-      setSuccess(true); 
+      logger.info("Booking success", responseWithPayload);
 
-      return data;
+      setSuccess(true);
+
+      return responseWithPayload;
     } catch (err) {
       logger.error("Error creating booking", err);
       setError("Error creating booking");
@@ -64,7 +73,7 @@ export const useCreateBooking = () => {
     createBooking,
     loading,
     error,
-    success, 
-    resetSuccess, 
+    success,
+    resetSuccess,
   };
 };
