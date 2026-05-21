@@ -1,12 +1,21 @@
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import {
+    View,
+    Text,
+    ScrollView,
+    TouchableOpacity,
+    ActivityIndicator,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useAppointments } from "@/hooks/useAppointments";
-import { Appointment, updateAppointmentStatus } from "@/features/admin/apit";
+import { useUpdateAppointmentStatus } from "@/hooks/useUpdateAppointmentStatus";
+import { Appointment } from "@/features/admin/types";
+import { logger } from "@/utils/logger";
 
-
-export default function Admin() {
+export default function DashBoardScreen() {
+    
     const { appointments, loading, refresh } = useAppointments();
+    const { updateStatus, updatingId } = useUpdateAppointmentStatus();
 
     const normalizeStatus = (status: string): Appointment["status"] => {
         return status.toLowerCase().trim() as Appointment["status"];
@@ -17,10 +26,10 @@ export default function Admin() {
         status: Appointment["status"]
     ) => {
         try {
-            await updateAppointmentStatus(id, status);
+            await updateStatus(id, status);
             refresh();
         } catch (err) {
-            console.log("Status update failed", err);
+            logger.error("Status update failed", err);
         }
     };
 
@@ -33,7 +42,7 @@ export default function Admin() {
             case "cancelled":
                 return "bg-red-50 text-red-500";
             default:
-                return "bg-yellow-50 text-yellow-600";
+                return "bg-gray-100 text-gray-700";
         }
     };
 
@@ -50,16 +59,17 @@ export default function Admin() {
     if (loading) {
         return (
             <View className="flex-1 justify-center items-center bg-background">
-                <Text className="text-text-secondary">Loading appointments...</Text>
+                <Text className="text-text-secondary">
+                    Loading appointments...
+                </Text>
             </View>
         );
     }
 
     return (
         <SafeAreaView className="flex-1 bg-background">
-            {/* HEADER */}
             <View className="px-6 pt-8 pb-4">
-            <View className="w-full max-w-xl mx-auto px-4">
+                <View className="w-full max-w-xl mx-auto px-4">
                     <Text className="text-2xl font-semibold text-text-primary">
                         Admin Dashboard
                     </Text>
@@ -70,7 +80,6 @@ export default function Admin() {
                 </View>
             </View>
 
-            {/* CONTENT */}
             <View className="flex-1">
                 <ScrollView
                     keyboardShouldPersistTaps="handled"
@@ -93,13 +102,13 @@ export default function Admin() {
                         ) : (
                             appointments.map((item: Appointment) => {
                                 const status = normalizeStatus(item.status);
+                                const isUpdating = updatingId === item.id;
 
                                 return (
                                     <View
                                         key={item.id}
                                         className="bg-surface border border-border rounded-2xl p-5 mb-4"
                                     >
-                                        {/* TOP */}
                                         <View className="flex-row justify-between items-start gap-3">
                                             <View className="flex-1">
                                                 <Text className="text-base font-semibold text-text-primary">
@@ -122,7 +131,6 @@ export default function Admin() {
                                             </View>
                                         </View>
 
-                                        {/* DATE */}
                                         <View className="mt-4 bg-background rounded-xl px-4 py-3">
                                             <Text className="text-xs text-text-muted uppercase">
                                                 Appointment
@@ -133,24 +141,34 @@ export default function Admin() {
                                             </Text>
                                         </View>
 
-                                        {/* ACTIONS */}
                                         <View className="flex-row items-center gap-2 mt-4">
                                             {status === "pending" && (
                                                 <>
                                                     <TouchableOpacity
-                                                        onPress={() => handleStatus(item.id, "confirmed")}
-                                                        className="flex-1 bg-black rounded-xl py-3"
+                                                        disabled={isUpdating}
+                                                        onPress={() =>
+                                                            handleStatus(item.id, "confirmed")
+                                                        }
+                                                        className={`flex-1 rounded-xl py-3 ${isUpdating ? "bg-gray-400" : "bg-black"
+                                                            }`}
                                                     >
-                                                        <Text className="text-white text-center text-sm font-medium">
-                                                            Confirm
-                                                        </Text>
+                                                        {isUpdating ? (
+                                                            <ActivityIndicator size="small" color="#ffffff" />
+                                                        ) : (
+                                                            <Text className="text-white text-center text-sm font-medium">
+                                                                Confirm
+                                                            </Text>
+                                                        )}
                                                     </TouchableOpacity>
 
                                                     <TouchableOpacity
-                                                        onPress={() => handleStatus(item.id, "cancelled")}
-                                                        className="flex-1 bg-red-50 rounded-xl py-3"
+                                                        disabled={isUpdating}
+                                                        onPress={() =>
+                                                            handleStatus(item.id, "cancelled")
+                                                        }
+                                                        className="flex-1 bg-gray-100 rounded-xl py-3"
                                                     >
-                                                        <Text className="text-red-500 text-center text-sm font-medium">
+                                                        <Text className="text-gray-700 text-center text-sm font-medium">
                                                             Cancel
                                                         </Text>
                                                     </TouchableOpacity>
@@ -160,19 +178,30 @@ export default function Admin() {
                                             {status === "confirmed" && (
                                                 <>
                                                     <TouchableOpacity
-                                                        onPress={() => handleStatus(item.id, "completed")}
-                                                        className="flex-1 bg-black rounded-xl py-3"
+                                                        disabled={isUpdating}
+                                                        onPress={() =>
+                                                            handleStatus(item.id, "completed")
+                                                        }
+                                                        className={`flex-1 rounded-xl py-3 ${isUpdating ? "bg-gray-400" : "bg-black"
+                                                            }`}
                                                     >
-                                                        <Text className="text-white text-center text-sm font-medium">
-                                                            Complete
-                                                        </Text>
+                                                        {isUpdating ? (
+                                                            <ActivityIndicator size="small" color="#ffffff" />
+                                                        ) : (
+                                                            <Text className="text-white text-center text-sm font-medium">
+                                                                Complete
+                                                            </Text>
+                                                        )}
                                                     </TouchableOpacity>
 
                                                     <TouchableOpacity
-                                                        onPress={() => handleStatus(item.id, "cancelled")}
-                                                        className="flex-1 bg-red-50 rounded-xl py-3"
+                                                        disabled={isUpdating}
+                                                        onPress={() =>
+                                                            handleStatus(item.id, "cancelled")
+                                                        }
+                                                        className="flex-1 bg-gray-100 rounded-xl py-3"
                                                     >
-                                                        <Text className="text-red-500 text-center text-sm font-medium">
+                                                        <Text className="text-gray-700 text-center text-sm font-medium">
                                                             Cancel
                                                         </Text>
                                                     </TouchableOpacity>
@@ -197,7 +226,6 @@ export default function Admin() {
                 </ScrollView>
             </View>
 
-            {/* REFRESH */}
             <View
                 style={{ pointerEvents: "box-none" }}
                 className="absolute bottom-6 right-6"
@@ -206,7 +234,9 @@ export default function Admin() {
                     onPress={refresh}
                     className="bg-black px-5 py-3 rounded-full"
                 >
-                    <Text className="text-white text-sm font-medium">Refresh</Text>
+                    <Text className="text-white text-sm font-medium">
+                        Refresh
+                    </Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>

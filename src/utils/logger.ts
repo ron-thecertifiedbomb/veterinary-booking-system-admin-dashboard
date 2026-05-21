@@ -1,15 +1,22 @@
-type LogLevel = "info" | "warn" | "error";
+const isDev = __DEV__;
 
 export const logger = {
   info: (message: string, data?: unknown) => {
-    console.log(`ℹ️ ${message}`, data ?? "");
+    if (isDev) {
+      console.log(`ℹ️ ${message}`, data ?? "");
+    }
   },
 
   warn: (message: string, data?: unknown) => {
-    console.warn(`⚠️ ${message}`, data ?? "");
+    if (isDev) {
+      console.warn(`⚠️ ${message}`, data ?? "");
+    }
   },
 
   error: (message: string, data?: unknown) => {
-    console.error(`❌ ${message}`, data ?? "");
+    if (isDev) {
+      console.error(`❌ ${message}`, data ?? "");
+    }
   },
 };
+``;
