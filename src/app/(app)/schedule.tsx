@@ -1,13 +1,5 @@
-import { Text, View } from "react-native";
+import Schedule from "@/screens/schedule/Schedule";
 
-export default function Booking() {
-
-    return (
-        <View className="flex-1 bg-white p-5">
-            <Text className="text-xl font-bold mb-4">
-                Booking
-            </Text>
-
-        </View>
-    );
+export default function ScheduleScreen() {
+    return <Schedule />;
 }

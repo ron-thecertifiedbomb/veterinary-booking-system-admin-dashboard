@@ -43,8 +43,17 @@ export const useCreateBooking = () => {
           body: errorBody,
         });
 
-        setError("Booking failed");
-        throw new Error("Booking failed");
+        let errorMessage = "An unexpected error occurred during booking.";
+        try {
+          const parsed = JSON.parse(errorBody);
+          if (parsed.message) errorMessage = parsed.message;
+        } catch {
+          // Fallback for non-JSON error bodies
+          if (errorBody) errorMessage = errorBody;
+        }
+
+        setError(errorMessage);
+        throw new Error(errorMessage);
       }
 
       const data = (await res.json()) as { bookingCode: string };
@@ -59,9 +68,16 @@ export const useCreateBooking = () => {
       setSuccess(true);
 
       return responseWithPayload;
-    } catch (err) {
+    } catch (err: any) {
+      // This will catch both the fetch error and the re-thrown error from the !res.ok block
       logger.error("Error creating booking", err);
-      setError("Error creating booking");
+      // Only set a generic network error if a specific one from the server wasn't already set
+      if (!error) {
+        setError(
+          err.message ||
+            "Could not connect to the server to create the booking.",
+        );
+      }
       throw err;
     } finally {
       setLoading(false);

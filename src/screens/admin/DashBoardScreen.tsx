@@ -1,19 +1,19 @@
 import {
-    View,
-    Text,
-    ScrollView,
-    TouchableOpacity,
     ActivityIndicator,
+    ScrollView,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { useAppointments } from "@/hooks/useAppointments";
-import { useUpdateAppointmentStatus } from "@/hooks/useUpdateAppointmentStatus";
 import { Appointment } from "@/features/admin/types";
+import { useAppointments } from "@/hooks/booking/useAppointments";
+import { useUpdateAppointmentStatus } from "@/hooks/booking/useUpdateAppointmentStatus";
 import { logger } from "@/utils/logger";
 
 export default function DashBoardScreen() {
-    
+
     const { appointments, loading, refresh } = useAppointments();
     const { updateStatus, updatingId } = useUpdateAppointmentStatus();
 

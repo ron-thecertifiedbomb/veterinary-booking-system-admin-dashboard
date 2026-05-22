@@ -48,7 +48,7 @@ export default function AppLayout() {
                 }}
             />
             <Tabs.Screen
-                name="history-screen"
+                name="history"
                 options={{
                     title: "History",
                     tabBarIcon: ({ color, size }) => (

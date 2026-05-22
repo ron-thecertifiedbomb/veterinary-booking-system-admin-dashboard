@@ -23,7 +23,7 @@ const getBaseUrl = () => {
         env.EXPO_PUBLIC_API_URL ||
         env.REACT_APP_API_URL ||
         env.NEXT_PUBLIC_API_URL ||
-        (Platform.OS === 'web' ? 'http://localhost:3000' : 'http://192.168.100.1:3000')
+        (Platform.OS === 'web' ? 'http://localhost:3000' : 'http://192.168.100.43:3000')
     );
 };
 
@@ -95,9 +95,9 @@ export const NetworkGuard: React.FC<NetworkGuardProps> = ({
             clearTimeout(timeoutId);
             setStatus('offline');
             if (error.name === 'AbortError') {
-                setErrorDetails('Connection timed out. The server took too long to respond.');
+                setErrorDetails(`Connection timed out attempting to reach:\n${apiUrl}\n\nThe server took too long to respond.`);
             } else {
-                setErrorDetails('No internet connection or the server is completely unreachable.');
+                setErrorDetails(`Failed to connect to:\n${apiUrl}\n\nPlease check your connection or ensure your backend server is running and reachable on this network.`);
             }
         }
     }, [apiUrl, maxTimeDifferenceMs]);
@@ -135,13 +135,13 @@ export const NetworkGuard: React.FC<NetworkGuardProps> = ({
     }
 
     return (
-        <View className="flex-1 items-center justify-center bg-black p-4">
+        <View className="flex-1 items-center justify-center bg-white p-4">
             {status === 'verifying' && (
                 <ActivityIndicator size="large" color="#d4d4d8" />
             )}
 
             {status === 'offline' && (
-                <View className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-8 w-full max-w-[400px] items-center shadow-2xl">
+                <View className="bg-white border border-x-zinc-500 rounded-2xl p-8 w-full max-w-[400px] items-center shadow-2xl">
                     <Text className="text-[48px] mb-4">📡</Text>
                     <Text className="text-zinc-300 mt-4 mb-2 text-2xl font-bold text-center">Connection Failed</Text>
                     <Text className="text-zinc-600 mb-8 text-[15px] text-center leading-[22px]">{errorDetails}</Text>

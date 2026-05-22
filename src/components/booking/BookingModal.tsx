@@ -1,24 +1,25 @@
+import { Picker } from "@react-native-picker/picker";
+import { useState } from "react";
 import {
-    View,
-    Text,
-    Modal,
-    TouchableOpacity,
     ActivityIndicator,
     Keyboard,
+    Modal,
     Pressable,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { useState } from "react";
-import { Picker } from "@react-native-picker/picker";
 
+import BookingForm from "@/components/booking/BookingForm";
 import { Slot } from "@/features/booking/types";
 import { formatTime } from "@/utils/date";
-import BookingForm from "@/components/booking/BookingForm";
 
 type Props = {
     visible: boolean;
     slots: Slot[];
     checking: boolean;
     creating: boolean;
+    error?: string | null;
     onClose: () => void;
     onSubmit: (data: {
         ownerName: string;
@@ -33,6 +34,7 @@ export default function BookingModal({
     slots = [],
     checking,
     creating,
+    error,
     onClose,
     onSubmit,
 }: Props) {
@@ -91,16 +93,23 @@ export default function BookingModal({
                 >
                     {checking ? (
                         <View className="items-center py-6">
-                            <ActivityIndicator size="large" color="#000000" />
-
-                            <Text className="text-text-primary font-semibold text-xl mt-4 mb-2 text-center">
-                                Checking Availability
-                            </Text>
-
-                            <Text className="text-text-muted text-sm text-center">
-                                Please wait while available appointment slots are being checked.
-                            </Text>
+                            <ActivityIndicator size="large" color="#6b7280" />
                         </View>
+                    ) : error && !hasAvailableSlots ? (
+                        <>
+                            <Text className="text-red-600 font-semibold text-xl mb-2 text-center">
+                                Connection Error
+                            </Text>
+                            <Text className="text-text-muted text-sm text-center mb-6">
+                                {error}
+                            </Text>
+                            <TouchableOpacity
+                                onPress={handleClose}
+                                className="bg-black rounded-xl py-3"
+                            >
+                                <Text className="text-white text-center font-medium">Close</Text>
+                            </TouchableOpacity>
+                        </>
                     ) : !hasAvailableSlots ? (
                         <>
                             <Text className="text-text-primary font-semibold text-xl mb-2 text-center">
@@ -157,6 +166,12 @@ export default function BookingModal({
                                 setPetName={setPetName}
                                 setServiceType={setServiceType}
                             />
+
+                            {error && (
+                                <View className="bg-red-50 border border-red-100 rounded-xl px-4 py-3 mb-4">
+                                    <Text className="text-red-600 text-sm text-center">{error}</Text>
+                                </View>
+                            )}
 
                             <View className="flex-row gap-3">
                                 <TouchableOpacity
