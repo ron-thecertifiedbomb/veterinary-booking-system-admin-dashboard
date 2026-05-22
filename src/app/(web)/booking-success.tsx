@@ -1,4 +1,5 @@
-import BookingSuccessScreen from "@/screens/booking/BookingSuccessScreen";
+import BookingSuccess from "@/screens/booking/BookingSuccess";
 
-
-export default BookingSuccessScreen;
+export default function BookingSuccessScreen() {
+    return BookingSuccess;
+}

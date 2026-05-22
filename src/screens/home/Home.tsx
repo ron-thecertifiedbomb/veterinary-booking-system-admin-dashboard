@@ -7,7 +7,7 @@ import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Platform, Text, View } from "react-native";
 
-export default function HomeScreen() {
+export default function Home() {
 
     const router = useRouter();
     const [date, setDate] = useState(getTodayDate());

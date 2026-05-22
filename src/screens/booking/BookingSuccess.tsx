@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function BookingSuccessScreen() {
+export default function BookingSuccess() {
 
     const router = useRouter();
     const { ownerName, bookingCode, petName, serviceType, date, time} =

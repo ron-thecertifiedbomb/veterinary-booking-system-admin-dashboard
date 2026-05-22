@@ -1,4 +1,4 @@
-import HomeScreen from "@/screens/booking/HomeScreen";
+import HomeScreen from "@/screens/home/Home";
 
 
 export default HomeScreen;

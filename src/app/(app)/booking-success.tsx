@@ -1,4 +1,4 @@
-import BookingSuccessScreen from "@/screens/booking/BookingSuccessScreen";
+import BookingSuccessScreen from "@/screens/booking/BookingSuccess";
 
 
 export default BookingSuccessScreen;

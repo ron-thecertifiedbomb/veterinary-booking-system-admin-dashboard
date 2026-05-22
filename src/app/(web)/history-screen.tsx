@@ -1,4 +1,5 @@
-import HistoryScreen from "@/screens/booking/HistoryScreen";
+import HistoryScreen from "@/screens/booking/history/History";
 
-
-export default HistoryScreen;
+export default function History() {
+    return <HistoryScreen />;
+}

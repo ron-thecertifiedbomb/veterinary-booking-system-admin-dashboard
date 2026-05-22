@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ActivityIndicator, FlatList, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function HistoryScreen() {
+export default function History() {
     const [searchQuery, setSearchQuery] = useState("");
     const { history, loading, error, refetch } = useCustomerHistory(searchQuery);
 
