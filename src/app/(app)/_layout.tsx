@@ -29,9 +29,9 @@ export default function AppUserLayout() {
             }}
         >
             <Tabs.Screen
-                name="home"
+                name="dashboard"
                 options={{
-                    title: "Book",
+                    title: "Dashboard",
                     tabBarIcon: ({ color, size }) => (
                         <Ionicons name="calendar-outline" size={size} color={color} />
                     ),
@@ -51,6 +51,15 @@ export default function AppUserLayout() {
                 name="history"
                 options={{
                     title: "History",
+                    tabBarIcon: ({ color, size }) => (
+                        <Ionicons name="list-outline" size={size} color={color} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="user"
+                options={{
+                    title: "Profile",
                     tabBarIcon: ({ color, size }) => (
                         <Ionicons name="list-outline" size={size} color={color} />
                     ),
