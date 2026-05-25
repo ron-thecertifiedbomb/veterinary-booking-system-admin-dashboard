@@ -11,12 +11,26 @@ export default function WebUserLayout() {
       ? localStorage.getItem("access_token")
       : null;
 
-  // ✅ redirect only if not authenticated
+  const storedUser =
+    typeof window !== "undefined"
+      ? localStorage.getItem("user")
+      : null;
+
+  const user = storedUser
+    ? JSON.parse(storedUser)
+    : null;
+
+  // ✅ not authenticated
   if (!accessToken) {
     return <Redirect href="/(auth)/login" />;
   }
 
-  // ✅ prevent unnecessary reroute on refresh
+  // ✅ NOT a USER → block access
+  if (user?.role !== "USER") {
+    return <Redirect href="/(admin-web)/dashboard" />;
+  }
+
+  // ✅ prevent root reroute only
   if (pathname === "/") {
     return <Redirect href="/(web)/home" />;
   }

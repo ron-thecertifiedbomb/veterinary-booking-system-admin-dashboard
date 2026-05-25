@@ -4,10 +4,28 @@ import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function AppUserLayout() {
+    const insets = useSafeAreaInsets();
+
+    // ✅ block web
     if (Platform.OS === "web") {
         return <Redirect href="/(web)/home" />;
     }
-    const insets = useSafeAreaInsets();
+
+    // ✅ retrieve auth
+    const accessToken = localStorage.getItem("access_token");
+    const storedUser = localStorage.getItem("user");
+
+    const user = storedUser ? JSON.parse(storedUser) : null;
+
+    // ✅ not authenticated
+    if (!accessToken) {
+        return <Redirect href="/(auth)/login" />;
+    }
+
+    // ✅ not USER → redirect
+    if (user?.role !== "USER") {
+        return <Redirect href="/(admin-app)/dashboard" />;
+    }
 
     return (
         <Tabs
@@ -29,44 +47,60 @@ export default function AppUserLayout() {
             }}
         >
             <Tabs.Screen
-                name="dashboard"
+                name="home"
                 options={{
-                    title: "Dashboard",
+                    title: "Home",
                     tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="calendar-outline" size={size} color={color} />
+                        <Ionicons
+                            name="home-outline"
+                            size={size}
+                            color={color}
+                        />
                     ),
                 }}
             />
 
             <Tabs.Screen
-                name="appointments"
+                name="schedule"
                 options={{
-                    title: "Appointments",
+                    title: "Schedule",
                     tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="list" size={size} color={color} />
-                    ),
-                }}
-            />
-            <Tabs.Screen
-                name="Profile"
-                options={{
-                    title: "profile",
-                    tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="list-outline" size={size} color={color} />
-                    ),
-                }}
-            />
-            <Tabs.Screen
-                name="users"
-                options={{
-                    title: "Users",
-                    tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="list-outline" size={size} color={color} />
+                        <Ionicons
+                            name="calendar-outline"
+                            size={size}
+                            color={color}
+                        />
                     ),
                 }}
             />
 
+            <Tabs.Screen
+                name="history"
+                options={{
+                    title: "History",
+                    tabBarIcon: ({ color, size }) => (
+                        <Ionicons
+                            name="time-outline"
+                            size={size}
+                            color={color}
+                        />
+                    ),
+                }}
+            />
+
+            <Tabs.Screen
+                name="profile"
+                options={{
+                    title: "Profile",
+                    tabBarIcon: ({ color, size }) => (
+                        <Ionicons
+                            name="person-outline"
+                            size={size}
+                            color={color}
+                        />
+                    ),
+                }}
+            />
         </Tabs>
     );
-
 }
