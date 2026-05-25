@@ -1,245 +1,118 @@
-import {
-    ActivityIndicator,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import BookingModal from "@/components/booking/BookingModal";
+import DateSelector from "@/components/booking/DateSelector";
+import { useBookingBootstrap } from "@/hooks/appointments/useBookingBootstrap";
+import { useCreateBooking } from "@/hooks/appointments/useCreateBooking";
 
+import { formatDate, getTodayDate } from "@/utils/date";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import { Platform, Text, View } from "react-native";
 
-import { useAppointments } from "@/hooks/appointments/useAppointments";
-import { useUpdateAppointmentStatus } from "@/hooks/appointments/useUpdateAppointmentStatus";
-import { logger } from "@/utils/logger";
-import { Appointment } from "@/features/admin/types";
+export default function Home() {
 
-export default function AdminDashBoardWeb() {
+    const router = useRouter();
+    const [date, setDate] = useState(getTodayDate());
+    const [showModal, setShowModal] = useState(false);
+    const [modalChecking, setModalChecking] = useState(false);
+    const { slots, loading, error: fetchError } = useBookingBootstrap(date);
 
-    const { appointments, loading, refresh } = useAppointments();
-    const { updateStatus, updatingId } = useUpdateAppointmentStatus();
+    const {
+        createBooking,
+        loading: creating,
+        error: createError,
+        success,
+        resetSuccess,
+    } = useCreateBooking();
 
-    const normalizeStatus = (status: string): Appointment["status"] => {
-        return status.toLowerCase().trim() as Appointment["status"];
-    };
+    useEffect(() => {
+        if (!success) return;
+        const timer = setTimeout(() => {
+            resetSuccess();
+        }, 2500);
+        return () => clearTimeout(timer);
+    }, [success, resetSuccess]);
 
-    const handleStatus = async (
-        id: number,
-        status: Appointment["status"]
-    ) => {
-        try {
-            await updateStatus(id, status);
-            refresh();
-        } catch (err) {
-            logger.error("Status update failed", err);
-        }
-    };
+    useEffect(() => {
+        if (!showModal) return;
+        if (loading) return;
+        setModalChecking(false);
+    }, [showModal, loading]);
 
-    const getStatusBadge = (status: Appointment["status"]) => {
-        switch (status) {
-            case "confirmed":
-                return "bg-blue-50 text-blue-600";
-            case "completed":
-                return "bg-green-50 text-green-600";
-            case "cancelled":
-                return "bg-red-50 text-red-500";
-            default:
-                return "bg-gray-100 text-gray-700";
-        }
-    };
-
-    const formatAppointmentDate = (value: string) => {
-        return new Date(value).toLocaleString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-            hour: "numeric",
-            minute: "2-digit",
-        });
-    };
-
-    if (loading) {
+    if (loading && !showModal) {
         return (
-            <View className="flex-1 justify-center items-center bg-background">
-                <Text className="text-text-secondary">
+            <View className="flex-1 justify-center items-center bg-background px-6">
+                <Text className="text-sm text-text-secondary">
                     Loading appointments...
                 </Text>
             </View>
         );
     }
-
     return (
-        <SafeAreaView className="flex-1 bg-background">
-            <View className="px-6 pt-8 pb-4">
-                <View className="w-full max-w-xl mx-auto px-4">
+        <View className="flex-1 bg-background items-center px-6">
+            <View className="w-full max-w-md pt-24">
+                <View className="mb-6">
                     <Text className="text-2xl font-semibold text-text-primary">
-                      User Dashboard
+                        Book an appointment
                     </Text>
-
-                    <Text className="text-sm text-text-muted mt-1">
-                        Review and manage appointment requests
+                    <Text className="text-sm leading-5 text-text-secondary mt-1.5">
+                        Select a date to schedule your pet’s visit.
                     </Text>
                 </View>
-            </View>
-
-            <View className="flex-1">
-                <ScrollView
-                    keyboardShouldPersistTaps="handled"
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{
-                        paddingBottom: 120,
-                    }}
-                >
-                    <View className="w-full max-w-xl mx-auto px-4">
-                        {appointments.length === 0 ? (
-                            <View className="bg-surface border border-border rounded-2xl p-6 mt-6">
-                                <Text className="text-text-primary font-semibold text-base">
-                                    No appointments yet
-                                </Text>
-
-                                <Text className="text-text-muted text-sm mt-1">
-                                    New bookings will appear here once clients schedule a visit.
-                                </Text>
-                            </View>
-                        ) : (
-                            appointments.map((item: Appointment) => {
-                                const status = normalizeStatus(item.status);
-                                const isUpdating = updatingId === item.id;
-
-                                return (
-                                    <View
-                                        key={item.id}
-                                        className="bg-surface border border-border rounded-2xl p-5 mb-4"
-                                    >
-                                        <View className="flex-row justify-between items-start gap-3">
-                                            <View className="flex-1">
-                                                <Text className="text-base font-semibold text-text-primary">
-                                                    {item.ownerName}
-                                                </Text>
-
-                                                <Text className="text-sm text-text-secondary mt-1">
-                                                    {item.petName} • {item.serviceType}
-                                                </Text>
-                                            </View>
-
-                                            <View
-                                                className={`px-3 py-1 rounded-full ${getStatusBadge(
-                                                    status
-                                                )}`}
-                                            >
-                                                <Text className="text-xs font-medium capitalize">
-                                                    {status}
-                                                </Text>
-                                            </View>
-                                        </View>
-
-                                        <View className="mt-4 bg-background rounded-xl px-4 py-3">
-                                            <Text className="text-xs text-text-muted uppercase">
-                                                Appointment
-                                            </Text>
-
-                                            <Text className="text-sm text-text-primary mt-1">
-                                                {formatAppointmentDate(item.appointmentDate)}
-                                            </Text>
-                                        </View>
-
-                                        <View className="flex-row items-center gap-2 mt-4">
-                                            {status === "pending" && (
-                                                <>
-                                                    <TouchableOpacity
-                                                        disabled={isUpdating}
-                                                        onPress={() =>
-                                                            handleStatus(item.id, "confirmed")
-                                                        }
-                                                        className={`flex-1 rounded-xl py-3 ${isUpdating ? "bg-gray-400" : "bg-black"
-                                                            }`}
-                                                    >
-                                                        {isUpdating ? (
-                                                            <ActivityIndicator size="small" color="#ffffff" />
-                                                        ) : (
-                                                            <Text className="text-white text-center text-sm font-medium">
-                                                                Confirm
-                                                            </Text>
-                                                        )}
-                                                    </TouchableOpacity>
-
-                                                    <TouchableOpacity
-                                                        disabled={isUpdating}
-                                                        onPress={() =>
-                                                            handleStatus(item.id, "cancelled")
-                                                        }
-                                                        className="flex-1 bg-gray-100 rounded-xl py-3"
-                                                    >
-                                                        <Text className="text-gray-700 text-center text-sm font-medium">
-                                                            Cancel
-                                                        </Text>
-                                                    </TouchableOpacity>
-                                                </>
-                                            )}
-
-                                            {status === "confirmed" && (
-                                                <>
-                                                    <TouchableOpacity
-                                                        disabled={isUpdating}
-                                                        onPress={() =>
-                                                            handleStatus(item.id, "completed")
-                                                        }
-                                                        className={`flex-1 rounded-xl py-3 ${isUpdating ? "bg-gray-400" : "bg-black"
-                                                            }`}
-                                                    >
-                                                        {isUpdating ? (
-                                                            <ActivityIndicator size="small" color="#ffffff" />
-                                                        ) : (
-                                                            <Text className="text-white text-center text-sm font-medium">
-                                                                Complete
-                                                            </Text>
-                                                        )}
-                                                    </TouchableOpacity>
-
-                                                    <TouchableOpacity
-                                                        disabled={isUpdating}
-                                                        onPress={() =>
-                                                            handleStatus(item.id, "cancelled")
-                                                        }
-                                                        className="flex-1 bg-gray-100 rounded-xl py-3"
-                                                    >
-                                                        <Text className="text-gray-700 text-center text-sm font-medium">
-                                                            Cancel
-                                                        </Text>
-                                                    </TouchableOpacity>
-                                                </>
-                                            )}
-
-                                            {(status === "completed" || status === "cancelled") && (
-                                                <View className="w-full bg-background rounded-xl py-3">
-                                                    <Text className="text-center text-text-muted text-sm">
-                                                        {status === "completed"
-                                                            ? "Completed appointment"
-                                                            : "Cancelled appointment"}
-                                                    </Text>
-                                                </View>
-                                            )}
-                                        </View>
-                                    </View>
-                                );
-                            })
-                        )}
-                    </View>
-                </ScrollView>
-            </View>
-
-            <View
-                style={{ pointerEvents: "box-none" }}
-                className="absolute bottom-6 right-6"
-            >
-                <TouchableOpacity
-                    onPress={refresh}
-                    className="bg-black px-5 py-3 rounded-full"
-                >
-                    <Text className="text-white text-sm font-medium">
-                        Refresh
+                <View className="bg-surface border border-border rounded-2xl px-5 py-4 mb-5">
+                    <Text className="text-[11px] text-text-muted uppercase tracking-wide mb-1.5">
+                        Selected Date
                     </Text>
-                </TouchableOpacity>
+                    <Text className="text-base font-semibold text-text-primary">
+                        {formatDate(date)}
+                    </Text>
+                </View>
+                <DateSelector
+                    date={date}
+                    onDateChange={(newDate) => {
+                        setModalChecking(true);
+                        setShowModal(true);
+                        setDate(newDate);
+                    }}
+                />
             </View>
-        </SafeAreaView>
+
+            <BookingModal
+                visible={showModal}
+                slots={slots}
+                checking={modalChecking || loading}
+                creating={creating}
+                error={fetchError || createError}
+                onClose={() => {
+                    setShowModal(false);
+                    setModalChecking(false);
+                }}
+                onSubmit={async (data) => {
+                    const response = await createBooking({
+                        ...data,
+                        date,
+                    });
+
+                    if (!response) return; // Wait for user to resolve creation error
+
+                    setShowModal(false);
+                    setModalChecking(false);
+                    const successPath =
+                        Platform.OS === "web"
+                            ? "/(web)/booking-success"
+                            : "/(app)/booking-success";
+                    router.push({
+                        pathname: successPath,
+                        params: {
+                            bookingCode: response.bookingCode,
+                            ownerName: response.ownerName,
+                            petName: response.petName,
+                            serviceType: response.serviceType,
+                            date,
+                            time: response.time,
+                        },
+                    });
+                }}
+            />
+        </View>
     );
 }

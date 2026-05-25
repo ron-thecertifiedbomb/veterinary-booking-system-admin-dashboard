@@ -1,15 +1,13 @@
 // src/features/auth/hooks/useLogin.ts
 
 import { useState } from "react";
-import { api } from "@/utils/api";
-import { LoginResponse } from "../types";
-import { logger } from "@/utils/logger";
 import Toast from "react-native-toast-message";
+import { api } from "@/utils/api";
+import { logger } from "@/utils/logger";
+import { setStorageItem } from "@/features/auth/storage";
+import { LoginPayload, LoginResponse } from "@/features/auth/types";
 
-type LoginPayload = {
-  email: string;
-  password: string;
-};
+
 
 export function useLogin() {
   const [loading, setLoading] = useState(false);
@@ -33,10 +31,14 @@ export function useLogin() {
         body: JSON.stringify(payload),
       });
 
-      // ✅ store token
-      localStorage.setItem("access_token", response.access_token);
+      // ✅ store access token
+      await setStorageItem("access_token", response.access_token);
+
+      // ✅ store user
+      await setStorageItem("user", JSON.stringify(response.user));
 
       logger.info("Access token stored");
+      logger.info("User session stored");
       logger.info("Login successful", response.user);
 
       setMessage(response.message);
@@ -46,25 +48,19 @@ export function useLogin() {
         type: "success",
         text1: response.message,
       });
-
       return response;
     } catch (err: any) {
       logger.error("Login failed", err);
 
       const errorMessage = err?.message || "Failed to login";
-
       setError(errorMessage);
-
-      // ✅ error toast
       Toast.show({
         type: "error",
         text1: errorMessage,
       });
-
       return null;
     } finally {
       setLoading(false);
-
       logger.info("Login request completed");
     }
   };
