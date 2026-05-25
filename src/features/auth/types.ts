@@ -21,3 +21,11 @@ export type LoginResponse = {
   access_token: string;
   user: AuthUser;
 };
+
+
+export type RegisterPayload = {
+  email: string;
+  password: string;
+  name: string;
+  phone?: string;
+};
