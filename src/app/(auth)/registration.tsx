@@ -1,6 +1,9 @@
-import Registration from "@/screens/auth/registration";
+import { Text, View } from "react-native";
 
-export default function RegistrationScreen() {
-
-    return <Registration />;
+export default function Registration() {
+    return (
+        <View className="flex-1 items-center justify-center">
+            <Text>Registration</Text>
+        </View>
+    );
 }
