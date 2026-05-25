@@ -3,9 +3,9 @@ import { Redirect, Tabs } from "expo-router";
 import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export default function AppUserLayout() {
+export default function AppAdminLayout() {
     if (Platform.OS === "web") {
-        return <Redirect href="/(web)/dashboard" />;
+        return <Redirect href="/(admin-web)/dashboard" />;
     }
     const insets = useSafeAreaInsets();
 
@@ -29,9 +29,9 @@ export default function AppUserLayout() {
             }}
         >
             <Tabs.Screen
-                name="home"
+                name="dashboard"
                 options={{
-                    title: "Book",
+                    title: "Dashboard",
                     tabBarIcon: ({ color, size }) => (
                         <Ionicons name="calendar-outline" size={size} color={color} />
                     ),
@@ -39,30 +39,25 @@ export default function AppUserLayout() {
             />
 
             <Tabs.Screen
-                name="schedule"
+                name="appointment"
                 options={{
-                    title: "Schedule",
+                    title: "Appointment",
                     tabBarIcon: ({ color, size }) => (
                         <Ionicons name="list" size={size} color={color} />
                     ),
                 }}
             />
             <Tabs.Screen
-                name="history"
+                name="user"
                 options={{
-                    title: "History",
+                    title: "Profile",
                     tabBarIcon: ({ color, size }) => (
                         <Ionicons name="list-outline" size={size} color={color} />
                     ),
                 }}
             />
 
-            <Tabs.Screen
-                name="booking-success"
-                options={{
-                    href: null,
-                }}
-            />
+     
         </Tabs>
     );
 

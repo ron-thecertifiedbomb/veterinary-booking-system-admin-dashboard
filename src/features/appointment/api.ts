@@ -1,4 +1,4 @@
-import { Slot, SlotsResponse } from "@/features/booking/types";
+import { SlotsResponse } from "@/features/appointment/types";
 import { API } from "@/utils/config/api";
 import { logger } from "@/utils/logger";
 
@@ -42,9 +42,9 @@ export const createBooking = async (payload: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        ownerName: payload.ownerName,   
-        petName: payload.petName,       
-        serviceType: payload.serviceType, 
+        ownerName: payload.ownerName,
+        petName: payload.petName,
+        serviceType: payload.serviceType,
         date: payload.date,
         time: payload.time,
       }),
@@ -69,4 +69,3 @@ export const createBooking = async (payload: {
     throw new Error("Error creating booking");
   }
 };
-

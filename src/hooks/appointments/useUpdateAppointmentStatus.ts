@@ -1,8 +1,9 @@
 import { useState } from "react";
 
-import { updateAppointmentStatus } from "@/features/admin/apit";
+
 import { Appointment } from "@/features/admin/types";
 import { logger } from "@/utils/logger";
+import { updateAppointmentStatus } from "@/features/admin/api";
 
 export const useUpdateAppointmentStatus = () => {
   const [updatingId, setUpdatingId] = useState<number | null>(null);

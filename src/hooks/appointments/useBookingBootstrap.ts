@@ -1,4 +1,4 @@
-import { Slot } from "@/features/booking/types";
+import { Slot } from "@/features/appointment/types";
 import { API } from "@/utils/config/api";
 import { logger } from "@/utils/logger";
 import { checkSystemTime } from "@/utils/time/checkSystemTime";

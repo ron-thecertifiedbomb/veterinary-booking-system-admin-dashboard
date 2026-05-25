@@ -7,12 +7,13 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { Appointment } from "@/features/admin/types";
-import { useAppointments } from "@/hooks/booking/useAppointments";
-import { useUpdateAppointmentStatus } from "@/hooks/booking/useUpdateAppointmentStatus";
-import { logger } from "@/utils/logger";
 
-export default function DashBoardScreen() {
+import { useAppointments } from "@/hooks/appointments/useAppointments";
+import { useUpdateAppointmentStatus } from "@/hooks/appointments/useUpdateAppointmentStatus";
+import { logger } from "@/utils/logger";
+import { Appointment } from "@/features/admin/types";
+
+export default function AdminDashBoardWeb() {
 
     const { appointments, loading, refresh } = useAppointments();
     const { updateStatus, updatingId } = useUpdateAppointmentStatus();
