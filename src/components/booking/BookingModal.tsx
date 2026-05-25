@@ -11,7 +11,7 @@ import {
 } from "react-native";
 
 import BookingForm from "@/components/booking/BookingForm";
-import { Slot } from "@/features/booking/types";
+import { Slot } from "@/features/appointment/types";
 import { formatTime } from "@/utils/date";
 
 type Props = {

@@ -1,5 +1,15 @@
-import Schedule from "@/screens/schedule/Schedule";
+import { Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function ScheduleScreen() {
-    return <Schedule />;
+export default function Schedule() {
+
+    return (
+        <SafeAreaView className="flex-1 bg-background justify-center items-center px-6">
+            <Text className="text-lg font-semibold mb-2">
+                Schedule
+            </Text>
+
+
+        </SafeAreaView>
+    );
 }

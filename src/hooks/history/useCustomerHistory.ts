@@ -1,4 +1,5 @@
-import { API } from "@/utils/api";
+
+import { API } from "@/utils/config/api";
 import { useCallback, useEffect, useState } from "react";
 
 // You can adjust this interface based on your exact Prisma schema

@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { getAppointments } from "@/features/admin/apit";
+
 import { Appointment } from "@/features/admin/types";
 import { logger } from "@/utils/logger";
+import { getAppointments } from "@/features/admin/api";
 
 export const useAppointments = () => {
 

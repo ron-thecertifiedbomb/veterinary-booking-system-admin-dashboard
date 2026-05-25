@@ -1,11 +1,49 @@
+// src/utils/api.ts
+
+import { API } from "@/utils/config/api";
 import { logger } from "@/utils/logger";
-import { Platform } from "react-native";
 
-const platform = Platform.OS;
+type RequestOptions = RequestInit & {
+  token?: string | null;
+};
 
-logger.info("Running on platform", platform);
+export async function api<T>(
+  endpoint: string,
+  options: RequestOptions = {},
+): Promise<T> {
+  const { token, headers, ...rest } = options;
 
-export const API =
-  Platform.OS === "web"
-    ? "http://localhost:3000"
-    : "http://192.168.100.43:3000";
+  const url = `${API}${endpoint}`;
+
+  logger.info("API Request", {
+    url,
+    method: rest.method || "GET",
+  });
+
+  const response = await fetch(url, {
+    ...rest,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token
+        ? {
+            Authorization: `Bearer ${token}`,
+          }
+        : {}),
+      ...headers,
+    },
+  });
+
+  const data = await response.json();
+
+  logger.info("API Response", {
+    status: response.status,
+    endpoint,
+  });
+
+  if (!response.ok) {
+    logger.error("API Error", data);
+    throw new Error(data?.message || "Something went wrong");
+  }
+
+  return data as T;
+}
