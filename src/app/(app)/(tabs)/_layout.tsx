@@ -45,9 +45,9 @@ export default function AppUserLayout() {
             />
 
             <Tabs.Screen
-                name="history"
+                name="appointments"
                 options={{
-                    title: "History",
+                    title: "Appointments",
                     tabBarIcon: ({ color, size }) => (
                         <Ionicons name="time-outline" size={size} color={color} />
                     ),

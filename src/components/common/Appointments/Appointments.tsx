@@ -1,11 +1,14 @@
 // src/features/appointments/components/Appointments.tsx
 
 import { useGetUserAppointments } from "@/features/users/hook/useGetUserAppointemts";
-import { useEffect } from "react";
+import { formatDate, getTodayDate } from "@/utils/date";
+import { useEffect, useState } from "react";
 import { View, Text, FlatList, ActivityIndicator } from "react-native";
 
 
 export default function Appointments() {
+
+    const date = getTodayDate();
     const {
         fetchAppointments,
         appointments,
@@ -45,9 +48,27 @@ export default function Appointments() {
     }
 
     return (
-        <View className="flex-1 bg-background items-center">
+        <View className="flex-1 bg-background items-center px-6">
             <View className="w-full max-w-xl flex-1">
+                {/* ✅ HEADER */}
+                <View className="w-full max-w-md pt-24 mb-6">
+                    <Text className="text-4xl font-semibold text-text-primary">
+                       Appointments
+                    </Text>
+                    <Text className="text-sm leading-5 text-text-secondary mt-1.5">
+                      List of previous appointments
+                    </Text>
+                </View>
 
+                {/* ✅ DATE DISPLAY */}
+                <View className="bg-surface border border-border rounded-2xl px-5 py-4 mb-5">
+                    <Text className="text-[11px] text-text-muted uppercase tracking-wide mb-1.5">
+                     Date Today
+                    </Text>
+                    <Text className="text-base font-semibold text-text-primary">
+                        {formatDate(date)}
+                    </Text>
+                </View>
                 <FlatList
                     data={appointments}
                     keyExtractor={(item) => item.bookingCode}
@@ -74,15 +95,15 @@ export default function Appointments() {
                             }}
                         >
                             <Text style={{ fontWeight: "700", fontSize: 16 }}>
-                                {item.petName}
+                               Pet name:  {item.petName}
                             </Text>
 
                             <Text style={{ color: "#555", marginTop: 4 }}>
-                                {item.serviceType}
+                              Service Type:  {item.serviceType}
                             </Text>
 
                             <Text style={{ marginTop: 6 }}>
-                                {new Date(item.appointmentDate).toLocaleString()}
+                              Date:  {new Date(item.appointmentDate).toLocaleString()}
                             </Text>
 
                             <Text
@@ -97,7 +118,7 @@ export default function Appointments() {
                                                 : "gray",
                                 }}
                             >
-                                {item.status.toUpperCase()}
+                              Status: {item.status.toUpperCase()}
                             </Text>
                         </View>
                     )}
