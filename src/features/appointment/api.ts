@@ -6,7 +6,7 @@ export const getSlots = async (date: string): Promise<SlotsResponse> => {
   try {
     logger.info("Fetching slots", { date });
 
-    const res = await fetch(`${API}/appointments/slots?date=${date}`, {
+    const res = await fetch(`${API}/api/vet/appointments/slots?date=${date}`, {
       cache: "no-store",
     });
 
@@ -26,7 +26,7 @@ export const getSlots = async (date: string): Promise<SlotsResponse> => {
   }
 };
 
-export const createBooking = async (payload: {
+export const createAppoinment = async (payload: {
   ownerName: string;
   petName: string;
   serviceType: string;
@@ -34,9 +34,9 @@ export const createBooking = async (payload: {
   time: string;
 }) => {
   try {
-    logger.info("Creating booking", payload);
+    logger.info("Creating appointment", payload);
 
-    const res = await fetch(`${API}/appointments`, {
+    const res = await fetch(`${API}/api/vet/appointments`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
