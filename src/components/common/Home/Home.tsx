@@ -5,12 +5,12 @@ import { useBookingBootstrap } from "@/hooks/appointments/useBookingBootstrap";
 
 import { formatDate, getTodayDate } from "@/utils/date";
 import { useEffect, useState } from "react";
-import { Text, View } from "react-native";
-import { useRouter } from "expo-router"; // ✅ ADD
+import { Text, View, ActivityIndicator } from "react-native";
+import { useRouter } from "expo-router";
 
 export default function Home() {
 
-    const router = useRouter(); // ✅ ADD
+    const router = useRouter();
 
     const [date, setDate] = useState(getTodayDate());
     const [showModal, setShowModal] = useState(false);
@@ -25,6 +25,15 @@ export default function Home() {
         success,
         resetSuccess,
     } = useCreateAppointment();
+
+    // ✅ ✅ ✅ NEW: initial loading guard
+    const [initialLoading, setInitialLoading] = useState(true);
+
+    useEffect(() => {
+        if (!loading) {
+            setInitialLoading(false);
+        }
+    }, [loading]);
 
     // ✅ reset success flag
     useEffect(() => {
@@ -42,11 +51,12 @@ export default function Home() {
         setModalChecking(false);
     }, [showModal, loading]);
 
-    // ✅ initial loading screen
-    if (loading && !showModal) {
+    // ✅ ✅ ✅ FIXED: initial loading screen (NO FLICKER)
+    if (initialLoading) {
         return (
             <View className="flex-1 justify-center items-center bg-background px-6">
-                <Text className="text-sm text-text-secondary">
+                <ActivityIndicator size="large" color="#111827" />
+                <Text className="text-sm text-text-secondary mt-3">
                     Loading appointments...
                 </Text>
             </View>
@@ -102,7 +112,6 @@ export default function Home() {
                 }}
                 onSubmit={async (formData) => {
                     try {
-                        // ✅ CREATE APPOINTMENT
                         const appointment = await createAppointment({
                             petName: formData.petName,
                             serviceType: formData.serviceType,
@@ -111,12 +120,11 @@ export default function Home() {
                             notes: formData.notes || "",
                         });
 
-                        // ✅ CLOSE MODAL
+                        // ✅ close modal immediately
                         setShowModal(false);
                         setModalChecking(false);
 
-                        // ✅ NAVIGATE TO SUCCESS SCREEN
-
+                        // ✅ delay navigation (for toast visibility)
                         setTimeout(() => {
                             router.push({
                                 pathname: "/success",
@@ -126,9 +134,8 @@ export default function Home() {
                             });
                         }, 800);
 
-
                     } catch {
-                        // handled inside hook
+                        // handled in hook
                     }
                 }}
             />
