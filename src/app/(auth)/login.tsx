@@ -54,7 +54,29 @@ export default function Login() {
             password,
         });
 
+
         if (!response) return;
+
+        // ✅ wait for storage to persist
+        setTimeout(() => {
+            const isWeb = Platform.OS === "web";
+
+            if (response.user.role === "ADMIN") {
+                router.replace(
+                    isWeb
+                        ? "/(admin-web)/dashboard"
+                        : "/(admin-app)/dashboard"
+                );
+                return;
+            }
+
+            router.replace(
+                isWeb
+                    ? "/(web)/home"
+                    : "/(app)/home"
+            );
+        }, 100);
+
     };
 
     return (
