@@ -19,3 +19,15 @@ export async function getStorageItem(key: string) {
 
   return AsyncStorage.getItem(key);
 }
+
+
+
+export async function removeStorageItem(key: string) {
+  if (Platform.OS === "web") {
+    localStorage.removeItem(key);
+    return;
+  }
+
+  await AsyncStorage.removeItem(key);
+}
+

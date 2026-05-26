@@ -51,7 +51,7 @@ export default function Home() {
         <View className="flex-1 bg-background items-center px-6">
             <View className="w-full max-w-md pt-24">
                 <View className="mb-6">
-                    <Text className="text-2xl font-semibold text-text-primary">
+                    <Text className="text-4xl font-semibold text-text-primary">
                         Book an appointment
                     </Text>
                     <Text className="text-sm leading-5 text-text-secondary mt-1.5">

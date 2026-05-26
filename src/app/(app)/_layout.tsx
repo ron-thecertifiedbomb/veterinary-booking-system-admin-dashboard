@@ -1,21 +1,41 @@
+import { getStorageItem } from "@/features/auth/storage";
 import { Ionicons } from "@expo/vector-icons";
 import { Redirect, Tabs } from "expo-router";
 import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useEffect, useState } from "react";
 
 export default function AppUserLayout() {
     const insets = useSafeAreaInsets();
+
+    const [loading, setLoading] = useState(true);
+    const [accessToken, setAccessToken] = useState<string | null>(null);
+    const [user, setUser] = useState<any>(null);
 
     // ✅ block web
     if (Platform.OS === "web") {
         return <Redirect href="/(web)/home" />;
     }
 
-    // ✅ retrieve auth
-    const accessToken = localStorage.getItem("access_token");
-    const storedUser = localStorage.getItem("user");
+    useEffect(() => {
+        const bootstrap = async () => {
+            const token = await getStorageItem("access_token");
+            const storedUser = await getStorageItem("user");
 
-    const user = storedUser ? JSON.parse(storedUser) : null;
+            setAccessToken(token);
+
+            if (storedUser) {
+                setUser(JSON.parse(storedUser));
+            }
+
+            setLoading(false);
+        };
+
+        bootstrap();
+    }, []);
+
+    // ✅ wait for storage load
+    if (loading) return null;
 
     // ✅ not authenticated
     if (!accessToken) {
@@ -51,11 +71,7 @@ export default function AppUserLayout() {
                 options={{
                     title: "Home",
                     tabBarIcon: ({ color, size }) => (
-                        <Ionicons
-                            name="home-outline"
-                            size={size}
-                            color={color}
-                        />
+                        <Ionicons name="home-outline" size={size} color={color} />
                     ),
                 }}
             />
@@ -65,11 +81,7 @@ export default function AppUserLayout() {
                 options={{
                     title: "Schedule",
                     tabBarIcon: ({ color, size }) => (
-                        <Ionicons
-                            name="calendar-outline"
-                            size={size}
-                            color={color}
-                        />
+                        <Ionicons name="calendar-outline" size={size} color={color} />
                     ),
                 }}
             />
@@ -79,11 +91,7 @@ export default function AppUserLayout() {
                 options={{
                     title: "History",
                     tabBarIcon: ({ color, size }) => (
-                        <Ionicons
-                            name="time-outline"
-                            size={size}
-                            color={color}
-                        />
+                        <Ionicons name="time-outline" size={size} color={color} />
                     ),
                 }}
             />
@@ -93,11 +101,17 @@ export default function AppUserLayout() {
                 options={{
                     title: "Profile",
                     tabBarIcon: ({ color, size }) => (
-                        <Ionicons
-                            name="person-outline"
-                            size={size}
-                            color={color}
-                        />
+                        <Ionicons name="person-outline" size={size} color={color} />
+                    ),
+                }}
+            />
+
+            <Tabs.Screen
+                name="pets"
+                options={{
+                    title: "Pets",
+                    tabBarIcon: ({ color, size }) => (
+                        <Ionicons name="paw-outline" size={size} color={color} />
                     ),
                 }}
             />

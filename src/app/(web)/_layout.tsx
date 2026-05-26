@@ -8,12 +8,12 @@ export default function WebUserLayout() {
 
   const accessToken =
     typeof window !== "undefined"
-      ? localStorage.getItem("access_token")
+      ? localStorage.getStorageItem("access_token")
       : null;
 
   const storedUser =
     typeof window !== "undefined"
-      ? localStorage.getItem("user")
+      ? localStorage.getStorageItem("user")
       : null;
 
   const user = storedUser
