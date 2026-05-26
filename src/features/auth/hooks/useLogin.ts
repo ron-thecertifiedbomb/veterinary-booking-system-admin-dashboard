@@ -32,12 +32,17 @@ export function useLogin() {
       // ✅ store access token
       await setStorageItem("access_token", response.access_token);
 
+const normalizedUser = {
+  ...response.user,
+  userId: response.user.userId || response.user.id, // ✅ FIX
+};
+
       // ✅ store user
-      await setStorageItem("user", JSON.stringify(response.user));
+      await setStorageItem("user", JSON.stringify(normalizedUser));
 
       logger.info("Access token stored");
       logger.info("User session stored");
-      logger.info("Login successful", response.user);
+      logger.info("Login successful", normalizedUser);
 
       setMessage(response.message);
 

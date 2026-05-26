@@ -22,11 +22,12 @@ type Props = {
     error?: string | null;
     onClose: () => void;
     onSubmit: (data: {
-        ownerName: string;
         petName: string;
         serviceType: string;
         time: string;
+        notes?: string;
     }) => Promise<void> | void;
+
 };
 
 export default function BookingModal({
@@ -38,22 +39,23 @@ export default function BookingModal({
     onClose,
     onSubmit,
 }: Props) {
-    const [ownerName, setOwnerName] = useState("");
-    const [petName, setPetName] = useState("");
-    const [serviceType, setServiceType] = useState("");
-    const [selectedTime, setSelectedTime] = useState("");
 
-    const availableSlots = slots.filter((slot) => slot.available === true);
+    const [petName, setPetName] = useState("");
+    const [serviceType, setServiceType] = useState("Checkup");
+    const [selectedTime, setSelectedTime] = useState("");
+    const [notes, setNotes] = useState("");
+    // ✅ only use available slots
+    const availableSlots = slots.filter((slot) => slot.available);
     const hasAvailableSlots = availableSlots.length > 0;
 
+    // ✅ validation
     const isValid =
-        ownerName &&
         petName &&
         serviceType &&
         selectedTime;
 
+    // ✅ reset form
     const resetForm = () => {
-        setOwnerName("");
         setPetName("");
         setServiceType("");
         setSelectedTime("");
@@ -64,6 +66,7 @@ export default function BookingModal({
 
         Keyboard.dismiss();
         onClose();
+        resetForm(); // ✅ reset when closing
     };
 
     const handleSubmit = async () => {
@@ -72,7 +75,6 @@ export default function BookingModal({
         Keyboard.dismiss();
 
         await onSubmit({
-            ownerName,
             petName,
             serviceType,
             time: selectedTime,
@@ -89,13 +91,18 @@ export default function BookingModal({
             >
                 <Pressable
                     className="bg-surface border border-border rounded-2xl p-6 w-full max-w-md"
-                    onPress={(event) => event.stopPropagation()}
+                    onPress={(e) => e.stopPropagation()}
                 >
+
+                    {/* ✅ LOADING */}
                     {checking ? (
                         <View className="items-center py-6">
                             <ActivityIndicator size="large" color="#6b7280" />
                         </View>
+
                     ) : error && !hasAvailableSlots ? (
+
+                        /* ✅ CONNECTION ERROR */
                         <>
                             <Text className="text-red-600 font-semibold text-xl mb-2 text-center">
                                 Connection Error
@@ -103,21 +110,27 @@ export default function BookingModal({
                             <Text className="text-text-muted text-sm text-center mb-6">
                                 {error}
                             </Text>
+
                             <TouchableOpacity
                                 onPress={handleClose}
                                 className="bg-black rounded-xl py-3"
                             >
-                                <Text className="text-white text-center font-medium">Close</Text>
+                                <Text className="text-white text-center font-medium">
+                                    Close
+                                </Text>
                             </TouchableOpacity>
                         </>
+
                     ) : !hasAvailableSlots ? (
+
+                        /* ✅ NO SLOTS */
                         <>
                             <Text className="text-text-primary font-semibold text-xl mb-2 text-center">
                                 No Slots Available
                             </Text>
 
                             <Text className="text-text-muted text-sm text-center mb-6">
-                                All appointment slots for this date are unavailable.
+                                All appointment slots are unavailable.
                                 {"\n"}Please choose another date.
                             </Text>
 
@@ -130,12 +143,16 @@ export default function BookingModal({
                                 </Text>
                             </TouchableOpacity>
                         </>
+
                     ) : (
+
+                        /* ✅ MAIN FORM */
                         <>
                             <Text className="text-text-primary font-semibold text-lg mb-4">
-                                Complete Booking
+                                Complete Appointment
                             </Text>
 
+                            {/* ✅ TIME SELECT */}
                             <Text className="text-xs text-text-muted mb-2">
                                 Select Time
                             </Text>
@@ -146,7 +163,11 @@ export default function BookingModal({
                                     enabled={!creating}
                                     onValueChange={(value) => setSelectedTime(String(value))}
                                 >
-                                    <Picker.Item label="Select a time..." value="" />
+                                    <Picker.Item
+                                        label="Select a time..."
+                                        value=""
+                                        color="#9CA3AF"
+                                    />
 
                                     {availableSlots.map((slot) => (
                                         <Picker.Item
@@ -157,22 +178,29 @@ export default function BookingModal({
                                     ))}
                                 </Picker>
                             </View>
+                                    
+                            {/* ✅ FORM */}
 
-                            <BookingForm
-                                ownerName={ownerName}
-                                petName={petName}
-                                serviceType={serviceType}
-                                setOwnerName={setOwnerName}
-                                setPetName={setPetName}
-                                setServiceType={setServiceType}
-                            />
+                                        <BookingForm
+                                            petName={petName}
+                                            serviceType={serviceType}
+                                            notes={notes}
+                                            setPetName={setPetName}
+                                            setServiceType={setServiceType}
+                                            setNotes={setNotes}
+                                        />
 
+
+                            {/* ✅ ERROR DISPLAY */}
                             {error && (
                                 <View className="bg-red-50 border border-red-100 rounded-xl px-4 py-3 mb-4">
-                                    <Text className="text-red-600 text-sm text-center">{error}</Text>
+                                    <Text className="text-red-600 text-sm text-center">
+                                        {error}
+                                    </Text>
                                 </View>
                             )}
 
+                            {/* ✅ ACTIONS */}
                             <View className="flex-row gap-3">
                                 <TouchableOpacity
                                     disabled={creating}
@@ -187,7 +215,9 @@ export default function BookingModal({
                                 <TouchableOpacity
                                     disabled={!isValid || creating}
                                     onPress={handleSubmit}
-                                    className={`flex-1 rounded-lg py-3 ${isValid && !creating ? "bg-black" : "bg-gray-300"
+                                    className={`flex-1 rounded-lg py-3 ${isValid && !creating
+                                            ? "bg-black"
+                                            : "bg-gray-400"
                                         }`}
                                 >
                                     {creating ? (

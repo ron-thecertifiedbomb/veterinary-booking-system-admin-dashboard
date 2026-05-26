@@ -27,7 +27,7 @@ export const useCreateBooking = () => {
 
       logger.info("Creating booking", payload);
 
-      const res = await fetch(`${API}/appointments`, {
+      const res = await fetch(`${API}/api/vetappointments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

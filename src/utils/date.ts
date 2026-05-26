@@ -13,9 +13,27 @@ export const formatPHDate = (input: Date | string) => {
 };
 
 // ✅ display date (safe)
+// ✅ display date (NO SHIFT, PH-safe)
 export const formatDate = (date: string) => {
+
+  // ✅ If already "YYYY-MM-DD"
+  if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    const [year, month, day] = date.split("-").map(Number);
+
+    // Create LOCAL date (no UTC conversion)
+    const localDate = new Date(year, month - 1, day);
+
+    return localDate.toLocaleDateString("en-US", {
+      timeZone: "Asia/Manila",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
+
+  // ✅ fallback for ISO strings
   return new Date(date).toLocaleDateString("en-US", {
-    timeZone: "Asia/Manila", 
+    timeZone: "Asia/Manila",
     month: "long",
     day: "numeric",
     year: "numeric",
@@ -23,17 +41,11 @@ export const formatDate = (date: string) => {
 };
 
 // ✅ display time (safe)
-export const formatTime = (time: string) => {
+export function formatTime(time: string) {
   const [hour, minute] = time.split(":").map(Number);
 
-  const date = new Date();
-  date.setHours(hour);
-  date.setMinutes(minute);
-  date.setSeconds(0);
+  const suffix = hour >= 12 ? "PM" : "AM";
+  const adjustedHour = hour % 12 === 0 ? 12 : hour % 12;
 
-  return date.toLocaleTimeString("en-US", {
-    timeZone: "Asia/Manila", 
-    hour: "numeric",
-    minute: "2-digit",
-  });
-};
+  return `${adjustedHour}:${minute.toString().padStart(2, "0")} ${suffix}`;
+}

@@ -1,29 +1,32 @@
 import BookingModal from "@/components/booking/BookingModal";
 import DateSelector from "@/components/booking/DateSelector";
+import { useCreateAppointment } from "@/features/appointment/hooks/useCreateAppointment";
 import { useBookingBootstrap } from "@/hooks/appointments/useBookingBootstrap";
-import { useCreateBooking } from "@/hooks/appointments/useCreateBooking";
 
 import { formatDate, getTodayDate } from "@/utils/date";
-import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Platform, Text, View } from "react-native";
+import { Text, View } from "react-native";
+import { useRouter } from "expo-router"; // ✅ ADD
 
 export default function Home() {
 
-    const router = useRouter();
+    const router = useRouter(); // ✅ ADD
+
     const [date, setDate] = useState(getTodayDate());
     const [showModal, setShowModal] = useState(false);
     const [modalChecking, setModalChecking] = useState(false);
+
     const { slots, loading, error: fetchError } = useBookingBootstrap(date);
 
     const {
-        createBooking,
+        createAppointment,
         loading: creating,
         error: createError,
         success,
         resetSuccess,
-    } = useCreateBooking();
+    } = useCreateAppointment();
 
+    // ✅ reset success flag
     useEffect(() => {
         if (!success) return;
         const timer = setTimeout(() => {
@@ -32,12 +35,14 @@ export default function Home() {
         return () => clearTimeout(timer);
     }, [success, resetSuccess]);
 
+    // ✅ modal loading sync
     useEffect(() => {
         if (!showModal) return;
         if (loading) return;
         setModalChecking(false);
     }, [showModal, loading]);
 
+    // ✅ initial loading screen
     if (loading && !showModal) {
         return (
             <View className="flex-1 justify-center items-center bg-background px-6">
@@ -47,9 +52,13 @@ export default function Home() {
             </View>
         );
     }
+
     return (
         <View className="flex-1 bg-background items-center px-6">
+
             <View className="w-full max-w-md pt-24">
+
+                {/* ✅ HEADER */}
                 <View className="mb-6">
                     <Text className="text-4xl font-semibold text-text-primary">
                         Book an appointment
@@ -58,6 +67,8 @@ export default function Home() {
                         Select a date to schedule your pet’s visit.
                     </Text>
                 </View>
+
+                {/* ✅ DATE DISPLAY */}
                 <View className="bg-surface border border-border rounded-2xl px-5 py-4 mb-5">
                     <Text className="text-[11px] text-text-muted uppercase tracking-wide mb-1.5">
                         Selected Date
@@ -66,6 +77,8 @@ export default function Home() {
                         {formatDate(date)}
                     </Text>
                 </View>
+
+                {/* ✅ DATE PICKER */}
                 <DateSelector
                     date={date}
                     onDateChange={(newDate) => {
@@ -76,6 +89,7 @@ export default function Home() {
                 />
             </View>
 
+            {/* ✅ BOOKING MODAL */}
             <BookingModal
                 visible={showModal}
                 slots={slots}
@@ -86,33 +100,39 @@ export default function Home() {
                     setShowModal(false);
                     setModalChecking(false);
                 }}
-                onSubmit={async (data) => {
-                    const response = await createBooking({
-                        ...data,
-                        date,
-                    });
-
-                    if (!response) return; // Wait for user to resolve creation error
-
-                    setShowModal(false);
-                    setModalChecking(false);
-                    const successPath =
-                        Platform.OS === "web"
-                            ? "/(web)/booking-success"
-                            : "/(app)/booking-success";
-                    router.push({
-                        pathname: successPath,
-                        params: {
-                            bookingCode: response.bookingCode,
-                            ownerName: response.ownerName,
-                            petName: response.petName,
-                            serviceType: response.serviceType,
+                onSubmit={async (formData) => {
+                    try {
+                        // ✅ CREATE APPOINTMENT
+                        const appointment = await createAppointment({
+                            petName: formData.petName,
+                            serviceType: formData.serviceType,
+                            time: formData.time,
                             date,
-                            time: response.time,
-                        },
-                    });
+                            notes: formData.notes || "",
+                        });
+
+                        // ✅ CLOSE MODAL
+                        setShowModal(false);
+                        setModalChecking(false);
+
+                        // ✅ NAVIGATE TO SUCCESS SCREEN
+
+                        setTimeout(() => {
+                            router.push({
+                                pathname: "/success",
+                                params: {
+                                    code: appointment.bookingCode,
+                                },
+                            });
+                        }, 800);
+
+
+                    } catch {
+                        // handled inside hook
+                    }
                 }}
             />
+
         </View>
     );
 }

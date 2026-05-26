@@ -1,21 +1,12 @@
 import { getStorageItem } from "@/features/auth/storage";
-import { Ionicons } from "@expo/vector-icons";
-import { Redirect, Tabs } from "expo-router";
-import { Platform } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Redirect, Slot } from "expo-router";
 import { useEffect, useState } from "react";
+import { View, ActivityIndicator, Platform } from "react-native";
 
-export default function AppUserLayout() {
-    const insets = useSafeAreaInsets();
-
+export default function AppLayout() {
     const [loading, setLoading] = useState(true);
     const [accessToken, setAccessToken] = useState<string | null>(null);
     const [user, setUser] = useState<any>(null);
-
-    // ✅ block web
-    if (Platform.OS === "web") {
-        return <Redirect href="/(web)/home" />;
-    }
 
     useEffect(() => {
         const bootstrap = async () => {
@@ -34,87 +25,30 @@ export default function AppUserLayout() {
         bootstrap();
     }, []);
 
-    // ✅ wait for storage load
-    if (loading) return null;
+    // ✅ SHOW LOADING (NO BLANK SCREEN)
+    if (loading) {
+        return (
+            <View className="flex-1 justify-center items-center bg-background">
+                <ActivityIndicator size="large" color="#6b7280" />
+            </View>
+        );
+    }
 
-    // ✅ not authenticated
+    // ✅ NOT AUTHENTICATED → GO TO LOGIN
     if (!accessToken) {
         return <Redirect href="/(auth)/login" />;
     }
 
-    // ✅ not USER → redirect
-    if (user?.role !== "USER") {
+    // ✅ WEB USERS → SEPARATE EXPERIENCE
+    if (Platform.OS === "web") {
+        return <Redirect href="/(web)/home" />;
+    }
+
+    // ✅ ADMIN USERS → ADMIN DASHBOARD
+    if (user?.role === "ADMIN") {
         return <Redirect href="/(admin-app)/dashboard" />;
     }
 
-    return (
-        <Tabs
-            screenOptions={{
-                headerShown: false,
-                tabBarActiveTintColor: "#111827",
-                tabBarInactiveTintColor: "#9CA3AF",
-                tabBarStyle: {
-                    height: 64 + insets.bottom,
-                    paddingTop: 8,
-                    paddingBottom: Math.max(insets.bottom, 12),
-                    borderTopWidth: 0,
-                    backgroundColor: "#FFFFFF",
-                },
-                tabBarLabelStyle: {
-                    fontSize: 12,
-                    fontWeight: "500",
-                },
-            }}
-        >
-            <Tabs.Screen
-                name="home"
-                options={{
-                    title: "Home",
-                    tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="home-outline" size={size} color={color} />
-                    ),
-                }}
-            />
-
-            <Tabs.Screen
-                name="schedule"
-                options={{
-                    title: "Schedule",
-                    tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="calendar-outline" size={size} color={color} />
-                    ),
-                }}
-            />
-
-            <Tabs.Screen
-                name="history"
-                options={{
-                    title: "History",
-                    tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="time-outline" size={size} color={color} />
-                    ),
-                }}
-            />
-
-            <Tabs.Screen
-                name="profile"
-                options={{
-                    title: "Profile",
-                    tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="person-outline" size={size} color={color} />
-                    ),
-                }}
-            />
-
-            <Tabs.Screen
-                name="pets"
-                options={{
-                    title: "Pets",
-                    tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="paw-outline" size={size} color={color} />
-                    ),
-                }}
-            />
-        </Tabs>
-    );
+    // ✅ NORMAL USERS → ALLOW APP ACCESS
+    return <Slot />;
 }
