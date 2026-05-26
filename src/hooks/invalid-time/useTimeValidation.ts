@@ -24,46 +24,44 @@ export function useTimeValidation() {
 
   const validate = async () => {
     try {
-      const res = await api<ServerTimeResponse>("/api/server-time");
-
+      const response = await api<ServerTimeResponse>("/api/server-time");
+  logger.info("useTimeValidation", {
+    message:response.message,
+    data:response.data
+  });
       // ✅ log backend message
-      logger.info(res.message);
-
-      const serverTime = res.data.timestamp;
-
-      // ✅ real device time
+      // logger.info(res.message);
+      const serverTime = response.data.timestamp;
       const deviceTimeRaw = Date.now();
 
-      // ✅ simulate wrong time (for testing)
       const deviceTime = DEBUG_FAKE_TIME
         ? deviceTimeRaw + 10 * 60 * 1000 // +10 minutes
         : deviceTimeRaw;
 
       // ✅ timezone (cross-platform safe)
-      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      // const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
       const diff = Math.abs(deviceTime - serverTime);
 
-      logger.info("Time comparison", {
-        timezone,
-        device: new Date(deviceTime).toLocaleString("en-PH", {
-          timeZone: "Asia/Manila",
-          dateStyle: "medium",
-          timeStyle: "short",
-        }),
-        server: new Date(serverTime).toLocaleString("en-PH", {
-          timeZone: "Asia/Manila",
-          dateStyle: "medium",
-          timeStyle: "short",
-        }),
-        diff,
-      });
+      // logger.info("Time comparison", {
+      //   timezone,
+      //   device: new Date(deviceTime).toLocaleString("en-PH", {
+      //     timeZone: "Asia/Manila",
+      //     dateStyle: "medium",
+      //     timeStyle: "short",
+      //   }),
+      //   server: new Date(serverTime).toLocaleString("en-PH", {
+      //     timeZone: "Asia/Manila",
+      //     dateStyle: "medium",
+      //     timeStyle: "short",
+      //   }),
+      //   diff,
+      // });
 
-      // ✅ validation (ONLY comparison)
       if (diff > 5 * 60 * 1000) {
-        logger.warn("Time mismatch detected 🚫", {
-          diff,
-        });
+        // logger.warn("Time mismatch detected 🚫", {
+        //   diff,
+        // });
 
         setInvalidTime(true);
       } else {
@@ -71,7 +69,7 @@ export function useTimeValidation() {
         setInvalidTime(false);
       }
     } catch (error) {
-      logger.error("Time validation failed", error);
+      // logger.error("Time validation failed", error);
     }
   };
 
@@ -80,7 +78,7 @@ export function useTimeValidation() {
 
     const subscription = AppState.addEventListener("change", (state) => {
       if (state === "active") {
-        logger.info("App resumed → rechecking time");
+        // logger.info("App resumed → rechecking time");
         validate();
       }
     });
