@@ -10,11 +10,13 @@ type ScreenContainerProps = {
 export default function ScreenContainer({
     children,
 }: ScreenContainerProps) {
+
     return (
         <View className="flex-1 bg-background items-center px-6">
-            <View className="w-full max-w-md pt-24">
+            <View className="flex-1 w-full max-w-md justify-center">
                 {children}
             </View>
         </View>
     );
+
 }

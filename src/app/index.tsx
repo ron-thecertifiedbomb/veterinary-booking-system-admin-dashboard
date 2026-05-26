@@ -12,55 +12,32 @@ type User = {
 
 export default function Index() {
   const [loading, setLoading] = useState(true);
-
-  const [accessToken, setAccessToken] =
-    useState<string | null>(null);
-
-  const [user, setUser] =
-    useState<User | null>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const bootstrap = async () => {
       try {
         logger.info("Bootstrapping auth session");
 
-        // ✅ retrieve token
-        const token = await getStorageItem(
-          "access_token",
-        );
-
-        // ✅ retrieve user
-        const storedUser =
-          await getStorageItem("user");
+        const token = await getStorageItem("access_token");
+        const storedUser = await getStorageItem("user");
 
         setAccessToken(token);
 
         if (storedUser) {
-          const parsedUser =
-            JSON.parse(storedUser);
-
+          const parsedUser = JSON.parse(storedUser);
           setUser(parsedUser);
 
-          logger.info(
-            "User session restored",
-            parsedUser,
-          );
+          logger.info("User session restored", parsedUser);
         }
 
-        logger.info(
-          "Access token restored",
-        );
+        logger.info("Access token restored");
       } catch (error) {
-        logger.error(
-          "Failed to restore auth session",
-          error,
-        );
+        logger.error("Failed to restore auth session", error);
       } finally {
         setLoading(false);
-
-        logger.info(
-          "Auth bootstrap completed",
-        );
+        logger.info("Auth bootstrap completed");
       }
     };
 
@@ -79,11 +56,9 @@ export default function Index() {
   const isLoggedIn = !!accessToken;
   const isAdmin = user?.role === "ADMIN";
 
-  // ✅ not authenticated
+  // ✅ not authenticated → login
   if (!isLoggedIn) {
-    return (
-      <Redirect href="/(auth)/login" />
-    );
+    return <Redirect href="/(auth)/login" />;
   }
 
   // ✅ admin routing
@@ -93,7 +68,7 @@ export default function Index() {
         href={
           Platform.OS === "web"
             ? "/(admin-web)/dashboard"
-            : "/(admin-app)/dashboard"
+            : "/(admin-app)(tabs)/dashboard"
         }
       />
     );
@@ -105,7 +80,7 @@ export default function Index() {
       href={
         Platform.OS === "web"
           ? "/(web)/home"
-          : "/(app)/home"
+          : "(app)/(tabs)/home"
       }
     />
   );

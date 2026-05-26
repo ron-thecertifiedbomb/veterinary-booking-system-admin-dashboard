@@ -1,64 +1,54 @@
-import { Ionicons } from "@expo/vector-icons";
-import { Redirect, Tabs } from "expo-router";
-import { Platform } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { getStorageItem } from "@/features/auth/storage";
+import { Redirect, Slot } from "expo-router";
+import { useEffect, useState } from "react";
+import { View, ActivityIndicator, Platform } from "react-native";
 
 export default function AppAdminLayout() {
-    if (Platform.OS === "web") {
-        return <Redirect href="/(admin-web)/dashboard" />;
+    const [loading, setLoading] = useState(true);
+    const [accessToken, setAccessToken] = useState<string | null>(null);
+    const [user, setUser] = useState<any>(null);
+
+    useEffect(() => {
+        const bootstrap = async () => {
+            const token = await getStorageItem("access_token");
+            const storedUser = await getStorageItem("user");
+
+            setAccessToken(token);
+
+            if (storedUser) {
+                setUser(JSON.parse(storedUser));
+            }
+
+            setLoading(false);
+        };
+
+        bootstrap();
+    }, []);
+
+    // ✅ SHOW LOADING (NO BLANK SCREEN)
+    if (loading) {
+        return (
+            <View className="flex-1 justify-center items-center bg-background">
+                <ActivityIndicator size="large" color="#6b7280" />
+            </View>
+        );
     }
-    const insets = useSafeAreaInsets();
 
-    return (
-        <Tabs
-            screenOptions={{
-                headerShown: false,
-                tabBarActiveTintColor: "#111827",
-                tabBarInactiveTintColor: "#9CA3AF",
-                tabBarStyle: {
-                    height: 64 + insets.bottom,
-                    paddingTop: 8,
-                    paddingBottom: Math.max(insets.bottom, 12),
-                    borderTopWidth: 0,
-                    backgroundColor: "#FFFFFF",
-                },
-                tabBarLabelStyle: {
-                    fontSize: 12,
-                    fontWeight: "500",
-                },
-            }}
-        >
-            <Tabs.Screen
-                name="dashboard"
-                options={{
-                    title: "Dashboard",
-                    tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="calendar-outline" size={size} color={color} />
-                    ),
-                }}
-            />
+    // ✅ NOT AUTHENTICATED → GO TO LOGIN
+    if (!accessToken) {
+        return <Redirect href="/(auth)/login" />;
+    }
 
-            <Tabs.Screen
-                name="appointments"
-                options={{
-                    title: "Appointments",
-                    tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="list" size={size} color={color} />
-                    ),
-                }}
-            />
-            <Tabs.Screen
-                name="users"
-                options={{
-                    title: "Users",
-                    tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="list-outline" size={size} color={color} />
-                    ),
-                }}
-            />
+    // ✅ WEB USERS → SEPARATE EXPERIENCE
+    if (Platform.OS === "web") {
+        return <Redirect href="/(admin-web)/home" />;
+    }
 
-     
-        </Tabs>
-    );
+    // ✅ ADMIN USERS → ADMIN DASHBOARD
+    if (user?.role === "ADMIN") {
+        return <Redirect href="/(admin-app)/dashboard" />;
+    }
 
+    // ✅ NORMAL USERS → ALLOW APP ACCESS
+    return <Slot />;
 }
