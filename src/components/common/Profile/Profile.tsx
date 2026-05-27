@@ -139,7 +139,7 @@ export default function Profile() {
                     <Pressable
                         onPress={confirmLogout}
                         disabled={logoutLoading}
-                        className="bg-red-500 rounded-2xl py-3 items-center active:opacity-80"
+                        className="bg-black rounded-2xl py-3 items-center active:opacity-80"
                     >
                         <Text className="text-white font-semibold text-sm">
                             {logoutLoading ? "Logging out..." : "Logout"}
