@@ -1,12 +1,9 @@
-// src/features/appointments/hooks/useGetUserAppointments.ts
-
 import { useState } from "react";
 import { api } from "@/utils/api";
 import { logger } from "@/utils/logger";
-import { getStorageItem } from "@/features/auth/storage";
-import {  GetUserAppointmentsResponse } from "@/features/users/types";
+import { getStorageItem, setStorageItem } from "@/features/auth/storage";
+import { GetUserAppointmentsResponse } from "@/features/users/types";
 import { Appointment } from "@/features/appointment/types";
-
 
 export function useGetUserAppointments() {
   const [loading, setLoading] = useState(false);
@@ -22,13 +19,24 @@ export function useGetUserAppointments() {
 
       logger.info("Fetching user appointments");
 
-      // ✅ get token
-      const token = await getStorageItem("access_token");
+      // ✅ 1. READ FROM CACHE FIRST
+      const stored = await getStorageItem("appointments");
 
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          setAppointments(parsed);
+          logger.info("Loaded appointments from cache ✅");
+        }
+      }
+
+      // ✅ 2. get token
+      const token = await getStorageItem("access_token");
       if (!token) {
         throw new Error("Not authenticated");
       }
 
+      // ✅ 3. FETCH FROM API
       const response = await api<GetUserAppointmentsResponse>(
         "/api/vet/users/appointments",
         {
@@ -39,15 +47,21 @@ export function useGetUserAppointments() {
         },
       );
 
-      // ✅ store state
-      setAppointments(response.data);
+      const safeData = Array.isArray(response.data) ? response.data : [];
+
+      // ✅ 4. UPDATE STATE
+      setAppointments(safeData);
       setMessage(response.message);
-      logger.info("Appointments fetched", {
+
+      logger.info("Appointments fetched ✅", {
         message: response.message,
-        count: response.data.length,
+        count: safeData.length,
       });
 
-      return response.data;
+      // ✅ 5. SAVE TO CACHE
+      await setStorageItem("appointments", JSON.stringify(safeData));
+
+      return safeData;
     } catch (err: any) {
       logger.error("Fetching appointments failed", err);
       const errorMessage = err?.message || "Failed to fetch user appointments";
@@ -67,4 +81,3 @@ export function useGetUserAppointments() {
     message,
   };
 }
-

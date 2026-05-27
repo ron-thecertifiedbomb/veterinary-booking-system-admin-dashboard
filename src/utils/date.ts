@@ -15,7 +15,6 @@ export const formatPHDate = (input: Date | string) => {
 // ✅ display date (safe)
 // ✅ display date (NO SHIFT, PH-safe)
 export const formatDate = (date: string) => {
-
   // ✅ If already "YYYY-MM-DD"
   if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
     const [year, month, day] = date.split("-").map(Number);
@@ -41,11 +40,17 @@ export const formatDate = (date: string) => {
 };
 
 // ✅ display time (safe)
-export function formatTime(time: string) {
-  const [hour, minute] = time.split(":").map(Number);
 
-  const suffix = hour >= 12 ? "PM" : "AM";
-  const adjustedHour = hour % 12 === 0 ? 12 : hour % 12;
+export const formatTime = (date: string) => {
+  return new Date(date).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
 
-  return `${adjustedHour}:${minute.toString().padStart(2, "0")} ${suffix}`;
-}
+export const formatShortDate = (date: string) => {
+  return new Date(date).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
+};
