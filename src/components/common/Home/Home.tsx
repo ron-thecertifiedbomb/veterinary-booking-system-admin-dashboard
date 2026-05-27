@@ -29,7 +29,8 @@ export default function Home() {
 
     // ✅ ✅ ✅ NEW: initial loading guard
     const [initialLoading, setInitialLoading] = useState(true);
-
+console.log('date', date)
+console.log('slots', slots)
     useEffect(() => {
         if (!loading) {
             setInitialLoading(false);

@@ -13,6 +13,8 @@ import {
 import BookingForm from "@/components/booking/BookingForm";
 import { Slot } from "@/features/appointment/types";
 import { formatTime } from "@/utils/date";
+import Loader from "@/components/common/Loader/Loader";
+import { formatSlotTime } from "@/utils/formatter";
 
 type Props = {
     visible: boolean;
@@ -97,7 +99,7 @@ export default function BookingModal({
                     {/* ✅ LOADING */}
                     {checking ? (
                         <View className="items-center py-6">
-                            <ActivityIndicator size="large" color="#6b7280" />
+                            <Loader fullScreen={false} size="small" />
                         </View>
 
                     ) : error && !hasAvailableSlots ? (
@@ -172,7 +174,7 @@ export default function BookingModal({
                                     {availableSlots.map((slot) => (
                                         <Picker.Item
                                             key={slot.time}
-                                            label={formatTime(slot.time)}
+                                            label={formatSlotTime(slot.time)}
                                             value={slot.time}
                                         />
                                     ))}
