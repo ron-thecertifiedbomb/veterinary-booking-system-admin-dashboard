@@ -1,15 +1,12 @@
-// src/features/appointments/components/Appointments.tsx
-
 import Loader from "@/components/common/Loader/Loader";
 import { useGetUserAppointments } from "@/features/users/hook/useGetUserAppointemts";
 import { formatDate, getTodayDate } from "@/utils/date";
-import { useEffect, useState } from "react";
-import { View, Text, FlatList, ActivityIndicator } from "react-native";
-
+import { useEffect } from "react";
+import { View, Text, FlatList } from "react-native";
 
 export default function Appointments() {
-
     const date = getTodayDate();
+    const now = new Date();
     const {
         fetchAppointments,
         appointments,
@@ -21,110 +18,126 @@ export default function Appointments() {
         fetchAppointments();
     }, []);
 
-    // ✅ Loading state
-    if (loading) {
-        return (
-            <Loader fullScreen={false} size="small" />
-        );
-    }
+    // ✅ Loading
+    if (loading) return <Loader fullScreen />;
 
-    // ✅ Error state
+    // ✅ Error
     if (error) {
         return (
-            <View style={{ padding: 20 }}>
-                <Text style={{ color: "red" }}>{error}</Text>
+            <View className="flex-1 justify-center items-center px-6">
+                <Text className="text-red-500 text-sm text-center">
+                    {error}
+                </Text>
             </View>
         );
     }
 
-    // ✅ Empty state
+    // ✅ Empty
     if (!appointments.length) {
         return (
-            <View style={{ padding: 20 }}>
-                <Text>No appointments found.</Text>
+            <View className="flex-1 justify-center items-center px-6">
+                <Text className="text-base text-text-secondary">
+                    No past appointments
+                </Text>
+                <Text className="text-xs text-text-muted mt-1">
+                    Completed and cancelled bookings will appear here.
+                </Text>
             </View>
         );
     }
 
     return (
-        <View className="flex-1 bg-background items-center px-6">
-            <View className="w-full max-w-xl flex-1">
+        <View className="flex-1 bg-background items-center">
+            <View className="w-full max-w-xl flex-1 px-6">
+
                 {/* ✅ HEADER */}
-                <View className="w-full max-w-md pt-24 mb-6">
-                    <Text className="text-4xl font-semibold text-text-primary">
-                       Appointments
+                <View className="pt-24 mb-6">
+                    <Text className="text-3xl font-semibold text-text-primary">
+                        My Appointments
                     </Text>
-                    <Text className="text-sm leading-5 text-text-secondary mt-1.5">
-                      List of previous appointments
+                    <Text className="text-sm text-text-secondary mt-1">
+                        Track and review your upcoming and past bookings.
                     </Text>
                 </View>
 
-                {/* ✅ DATE DISPLAY */}
+                {/* ✅ DATE CARD */}
                 <View className="bg-surface border border-border rounded-2xl px-5 py-4 mb-5">
-                    <Text className="text-[11px] text-text-muted uppercase tracking-wide mb-1.5">
-                     Date Today
+                    <Text className="text-[11px] uppercase tracking-wide text-text-muted mb-1">
+                        Today is
                     </Text>
                     <Text className="text-base font-semibold text-text-primary">
                         {formatDate(date)}
                     </Text>
+
+                    {/* ✅ Time */}
+                    <Text className="text-xs text-text-secondary mt-1">
+                        Time: {now.toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        })}
+                    </Text>
                 </View>
+
                 <FlatList
                     data={appointments}
                     keyExtractor={(item) => item.bookingCode}
-                    // ✅ FORCE SCROLL AREA
                     contentContainerStyle={{
-                        paddingHorizontal: 16,
-                        paddingTop: 24,
                         paddingBottom: 40,
-                        flexGrow: 1, // 🔥 THIS FIXES YOUR ISSUE
                     }}
+                    showsVerticalScrollIndicator={false}
+                    renderItem={({ item }) => {
 
-                    // ✅ SHOW SCROLLBAR
-                    showsVerticalScrollIndicator={true}
+                        const statusColor =
+                            item.status === "booked"
+                                ? "bg-green-100 text-green-700"
+                                : item.status === "cancelled"
+                                    ? "bg-red-100 text-red-600"
+                                    : "bg-gray-100 text-gray-600";
 
-                    renderItem={({ item }) => (
-                        <View
-                            style={{
-                                padding: 16,
-                                marginBottom: 12,
-                                borderRadius: 12,
-                                backgroundColor: "#f9fafb",
-                                borderWidth: 1,
-                                borderColor: "#e5e7eb",
-                            }}
-                        >
-                            <Text style={{ fontWeight: "700", fontSize: 16 }}>
-                               Pet name:  {item.petName}
-                            </Text>
+                        return (
+                            <View className="bg-surface border border-border rounded-2xl p-5 mb-3">
 
-                            <Text style={{ color: "#555", marginTop: 4 }}>
-                              Service Type:  {item.serviceType}
-                            </Text>
+                                {/* Top Row */}
 
-                            <Text style={{ marginTop: 6 }}>
-                              Date:  {new Date(item.appointmentDate).toLocaleString()}
-                            </Text>
+                                <View className="flex-row justify-between items-center mb-2">
+                                    <Text className="text-base font-semibold text-text-primary">
+                                        {item.petName}
+                                    </Text>
 
-                            <Text
-                                style={{
-                                    marginTop: 6,
-                                    fontWeight: "600",
-                                    color:
-                                        item.status === "booked"
-                                            ? "green"
-                                            : item.status === "cancelled"
-                                                ? "red"
-                                                : "gray",
-                                }}
-                            >
-                              Status: {item.status.toUpperCase()}
-                            </Text>
-                        </View>
-                    )}
+                             
+                                </View>
+
+
+                                {/* Service */}
+                                <Text className="text-sm text-text-secondary">
+                                    {item.serviceType}
+                                </Text>
+
+                                <View className="h-px bg-border my-3" />
+
+                                {/* Date */}
+                                <Text className="text-xs text-slate-800 mt-1">
+                                  Date: {new Date(item.appointmentDate).toLocaleDateString()}
+                                </Text>
+                                {/* Time */}
+                                <Text className="text-xs text-slate-800 mt-1">
+                                    Time: {new Date(item.appointmentDate).toLocaleTimeString([], {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                    })}
+                                </Text>
+
+                                {/* Reference */}
+                                <Text className="text-xs text-slate-800 mt-1">
+                                    Ref: {item.bookingCode}
+                                </Text>
+
+                            </View>
+                        );
+                    }}
                 />
-
             </View>
         </View>
     );
-
 }
+``

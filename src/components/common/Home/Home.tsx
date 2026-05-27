@@ -18,7 +18,7 @@ export default function Home() {
     const [modalChecking, setModalChecking] = useState(false);
 
     const { slots, loading, error: fetchError } = useBookingBootstrap(date);
-
+    const now = new Date();
     const {
         createAppointment,
         loading: creating,
@@ -58,31 +58,32 @@ export default function Home() {
     }
 
     return (
-        <View className="flex-1 bg-background items-center px-6">
-
-            <View className="w-full max-w-xl pt-24">
-
-                {/* ✅ HEADER */}
-                <View className="mb-6">
-                    <Text className="text-2xl lg:text-4xl font-semibold text-text-primary">
-                        Book an appointment
+        <View className="flex-1 bg-background items-center">
+            <View className="w-full max-w-xl flex-1 px-6">
+                <View className="pt-24 mb-6">
+                    <Text className="text-3xl font-semibold text-text-primary">
+                        Book an Appointment
                     </Text>
-                    <Text className="text-sm leading-5 text-text-secondary mt-1.5">
-                        Select a date to schedule your pet’s visit.
+                    <Text className="text-sm text-text-secondary mt-1">
+                        Select a service and choose your preferred schedule.
                     </Text>
                 </View>
-
-                {/* ✅ DATE DISPLAY */}
                 <View className="bg-surface border border-border rounded-2xl px-5 py-4 mb-5">
-                    <Text className="text-[11px] text-text-muted uppercase tracking-wide mb-1.5">
-                        Selected Date
+                    <Text className="text-[11px] uppercase tracking-wide text-text-muted mb-1">
+                        Today is
                     </Text>
                     <Text className="text-base font-semibold text-text-primary">
                         {formatDate(date)}
                     </Text>
-                </View>
 
-                {/* ✅ DATE PICKER */}
+                    {/* ✅ Time */}
+                    <Text className="text-xs text-text-secondary mt-1">
+                        Time: {now.toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        })}
+                    </Text>
+                </View>
                 <DateSelector
                     date={date}
                     onDateChange={(newDate) => {

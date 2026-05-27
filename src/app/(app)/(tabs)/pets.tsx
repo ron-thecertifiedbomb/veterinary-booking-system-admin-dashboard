@@ -1,15 +1,6 @@
-import { Text } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import Pets from "@/components/common/Pets/Pets";
 
-export default function Pets() {
+export default function PetScreen() {
 
-    return (
-        <SafeAreaView className="flex-1 bg-background justify-center items-center px-6">
-            <Text className="text-lg font-semibold mb-2">
-                Pets
-            </Text>
-
-
-        </SafeAreaView>
-    );
+    return <Pets/>
 }

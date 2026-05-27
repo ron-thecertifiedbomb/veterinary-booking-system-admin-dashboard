@@ -13,6 +13,8 @@
     "android:install-release": "adb install -r android/app/build/outputs/apk/release/app-release.apk",
     "android:install-debug": "adb install -r android/app/build/outputs/apk/debug/app-debug.apk",
     "android:reverse": "adb reverse tcp:3000 tcp:3000",
+    "android:clean:full": "cd android && gradlew.bat clean",
+    "android:clean:deep": "cd android && gradlew.bat clean && rd /s /q .gradle build app\\build && cd ..",
     "web": "expo start --web",
     "dev": "expo start --android",
     "build:android": "cd android && gradlew.bat assembleRelease",

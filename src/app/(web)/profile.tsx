@@ -1,13 +1,7 @@
-import ScreenContainer from "@/components/common/layout/ScreenContainer";
-import { Text } from "react-native";
+import Profile from "@/components/common/Profile/Profile";
 
-export default function Profile() {
+export default function ProfileScreen() {
 
-    return (
-        <ScreenContainer>
-            <Text className="text-lg font-semibold mb-2">
-                Profile
-            </Text>
-        </ScreenContainer>
-    );
+    return <Profile />
+
 }
