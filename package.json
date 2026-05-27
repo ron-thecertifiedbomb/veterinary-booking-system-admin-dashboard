@@ -1,5 +1,5 @@
 {
-  "name": "veterinary-booking-system-admin-dashboard",
+  "name": "veterinary-booking-system",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
