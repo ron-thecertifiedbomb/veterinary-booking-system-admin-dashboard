@@ -1,5 +1,4 @@
 import { useState } from "react";
-import Toast from "react-native-toast-message";
 import { api } from "@/utils/api";
 import { logger } from "@/utils/logger";
 import { getStorageItem, setStorageItem } from "@/features/auth/storage";
@@ -53,11 +52,6 @@ export function useUpdateProfile() {
       // ✅ update stored user (important)
       await setStorageItem("user", JSON.stringify(response.data));
 
-      Toast.show({
-        type: "success",
-        text1: response.message,
-      });
-
       return response;
     } catch (err: any) {
       logger.error("Update profile failed", err);
@@ -65,10 +59,6 @@ export function useUpdateProfile() {
       const errorMessage = err?.message || "Failed to update profile";
       setError(errorMessage);
 
-      Toast.show({
-        type: "error",
-        text1: errorMessage,
-      });
 
       return null;
     } finally {

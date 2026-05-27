@@ -1,7 +1,8 @@
 import ScreenContainer from "@/components/common/layout/ScreenContainer";
 import { useAddPet } from "@/features/pet/useAddPet";
-import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { BackHandler } from "react-native";
+import { useEffect, useState } from "react";
 import {
     ActivityIndicator,
     KeyboardAvoidingView,
@@ -11,13 +12,11 @@ import {
     Text,
     TextInput,
     View,
+    Alert,
 } from "react-native";
-
-
 
 export default function AddPetForm() {
     const router = useRouter();
-
     const { addPet, loading } = useAddPet();
 
     const [name, setName] = useState("");
@@ -27,11 +26,34 @@ export default function AddPetForm() {
 
     const [nameError, setNameError] = useState<string | null>(null);
     const [speciesError, setSpeciesError] = useState<string | null>(null);
+    const params = useLocalSearchParams();
+
+
+
+
+
+    useEffect(() => {
+        const backAction = () => {
+            router.replace("/pets"); // ✅ force correct screen
+            return true; // ✅ prevent default behavior
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            backAction
+        );
+
+        return () => backHandler.remove();
+    }, []);
+
 
     const noOutline =
         Platform.OS === "web"
             ? ({ outlineStyle: "none" } as any)
             : undefined;
+
+    // ✅ Button enabled only if required fields are filled
+    const isDisabled = !name || !species || loading;
 
     const handleCreatePet = async () => {
         setNameError(null);
@@ -58,10 +80,24 @@ export default function AddPetForm() {
             weight: weight ? Number(weight) : undefined,
         });
 
-        if (!response) return;
+        if (!response) {
+            Alert.alert("Error", "Failed to create pet");
+            return;
+        }
 
-        // ✅ go back + trigger refresh
-        router.replace("/pets?refresh=true");
+        // ✅ SUCCESS ALERT WITH SERVER MESSAGE
+
+        Alert.alert(
+            "Success",
+            response.message,
+            [
+                {
+                    text: "OK",
+                    onPress: () => router.replace("/pets"),
+                },
+            ]
+        );
+
     };
 
     return (
@@ -72,7 +108,7 @@ export default function AddPetForm() {
             >
                 <ScrollView
                     className="flex-1"
-                    contentContainerStyle={{ flexGrow: 1 }} // ✅ crucial for centering
+                    contentContainerStyle={{ flexGrow: 1 }}
                     keyboardShouldPersistTaps="handled"
                 >
                     <View className="flex-1 justify-center items-center">
@@ -169,13 +205,19 @@ export default function AddPetForm() {
                                 {/* ✅ BUTTON */}
                                 <Pressable
                                     onPress={handleCreatePet}
-                                    disabled={loading}
-                                    className="bg-black rounded-2xl py-4 items-center mt-6 active:opacity-80"
+                                    disabled={isDisabled}
+                                    className={`rounded-2xl py-4 items-center mt-6 ${isDisabled
+                                            ? "bg-gray-300"
+                                            : "bg-black active:opacity-80"
+                                        }`}
                                 >
                                     {loading ? (
                                         <ActivityIndicator color="#FFFFFF" />
                                     ) : (
-                                        <Text className="text-white font-semibold text-base">
+                                        <Text
+                                            className={`font-semibold text-base ${isDisabled ? "text-gray-500" : "text-white"
+                                                }`}
+                                        >
                                             Save Pet
                                         </Text>
                                     )}
@@ -189,4 +231,3 @@ export default function AddPetForm() {
         </ScreenContainer>
     );
 }
-``

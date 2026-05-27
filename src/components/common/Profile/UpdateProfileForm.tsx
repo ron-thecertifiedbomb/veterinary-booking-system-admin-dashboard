@@ -1,9 +1,9 @@
 import ScreenContainer from "@/components/common/layout/ScreenContainer";
-import { useUpdateProfile } from "@/features/users/hook/upeUpdateProfile";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     ActivityIndicator,
+    Alert,
     KeyboardAvoidingView,
     Platform,
     Pressable,
@@ -14,11 +14,15 @@ import {
 } from "react-native";
 
 
+import { useGetUserProfile } from "@/features/users/hook/useGetUserProfile";
+import { useUpdateProfile } from "@/features/users/hook/UpdateProfile";
+import Loader from "@/components/common/Loader/Loader";
 
 export default function UpdateProfileForm() {
     const router = useRouter();
 
     const { updateProfile, loading } = useUpdateProfile();
+    const { profile, fetchUserProfile, loading: fetching } = useGetUserProfile();
 
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
@@ -27,11 +31,55 @@ export default function UpdateProfileForm() {
     const [nameError, setNameError] = useState<string | null>(null);
     const [emailError, setEmailError] = useState<string | null>(null);
 
+    const [original, setOriginal] = useState({
+        name: "",
+        email: "",
+        phone: "",
+    });
+
     const noOutline =
         Platform.OS === "web"
             ? ({ outlineStyle: "none" } as any)
             : undefined;
 
+    // ✅ Fetch profile
+    useEffect(() => {
+        fetchUserProfile();
+    }, []);
+
+    // ✅ Populate fields
+    useEffect(() => {
+        if (profile) {
+            setName(profile.name || "");
+            setEmail(profile.email || "");
+            setPhone(profile.phone || "");
+        }
+    }, [profile]);
+
+    useEffect(() => {
+        if (profile) {
+            const userData = {
+                name: profile.name || "",
+                email: profile.email || "",
+                phone: profile.phone || "",
+            };
+
+            setName(userData.name);
+            setEmail(userData.email);
+            setPhone(userData.phone);
+
+            setOriginal(userData); // ✅ store original values
+        }
+    }, [profile]);
+    const hasChanges =
+        name !== original.name ||
+        email !== original.email ||
+        phone !== original.phone;
+
+    const isDisabled =
+        !name || !email || !hasChanges || loading;
+
+    // ✅ Submit handler
     const handleUpdateProfile = async () => {
         setNameError(null);
         setEmailError(null);
@@ -56,11 +104,32 @@ export default function UpdateProfileForm() {
             phone,
         });
 
-        if (!response) return;
+        if (!response) {
+            Alert.alert("Error", "Failed to update profile");
+            return;
+        }
 
-        // ✅ go back to profile
-        router.back();
+        // ✅ SUCCESS ALERT
+
+        Alert.alert(
+            "Success",
+            response.message,
+            [
+                {
+                    text: "OK",
+                    onPress: () => router.replace("/profile"),
+                },
+            ]
+        );
+
     };
+
+    // ✅ Loader while fetching initial profile
+    if (fetching) {
+        return (
+           <Loader fullScreen />
+        );
+    }
 
     return (
         <ScreenContainer>
@@ -70,7 +139,7 @@ export default function UpdateProfileForm() {
             >
                 <ScrollView
                     className="flex-1"
-                    contentContainerStyle={{ flexGrow: 1 }} // ✅ center fix
+                    contentContainerStyle={{ flexGrow: 1 }}
                     keyboardShouldPersistTaps="handled"
                 >
                     <View className="flex-1 justify-center items-center">
@@ -123,6 +192,7 @@ export default function UpdateProfileForm() {
                                         }}
                                         placeholder="e.g. john@email.com"
                                         keyboardType="email-address"
+                                        autoCapitalize="none"
                                         className="bg-surface rounded-2xl px-4 py-4"
                                         style={noOutline}
                                     />
@@ -151,18 +221,23 @@ export default function UpdateProfileForm() {
                                 {/* ✅ BUTTON */}
                                 <Pressable
                                     onPress={handleUpdateProfile}
-                                    disabled={loading}
-                                    className="bg-black rounded-2xl py-4 items-center mt-6 active:opacity-80"
+                                    disabled={isDisabled}
+                                    className={`rounded-2xl py-4 items-center mt-6 ${isDisabled
+                                            ? "bg-gray-300"
+                                            : "bg-black active:opacity-80"
+                                        }`}
                                 >
                                     {loading ? (
                                         <ActivityIndicator color="#FFFFFF" />
                                     ) : (
-                                        <Text className="text-white font-semibold text-base">
+                                        <Text
+                                            className={`font-semibold text-base ${isDisabled ? "text-gray-500" : "text-white"
+                                                }`}
+                                        >
                                             Save Changes
                                         </Text>
                                     )}
                                 </Pressable>
-
                             </View>
                         </View>
                     </View>

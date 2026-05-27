@@ -59,7 +59,7 @@ export default function Pets() {
 
                         <Pressable
                             className="bg-black rounded-xl px-6 py-3 mt-5 active:opacity-80"
-                            onPress={() => router.push("/add-pet")}
+                            onPress={() => router.push("/edit-pet")}
                         >
                             <Text className="text-white font-semibold text-sm">
                                 Add Pet
