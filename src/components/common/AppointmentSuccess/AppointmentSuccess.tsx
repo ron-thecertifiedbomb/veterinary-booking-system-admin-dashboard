@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getStorageItem } from "@/features/auth/storage";
+import Loader from "@/components/common/Loader/Loader";
 
 export default function AppoinmentSuccess() {
 
@@ -29,13 +30,10 @@ export default function AppoinmentSuccess() {
         loadAppointment();
     }, []);
 
-    // ✅ loading or no data case
     if (!appointment) {
         return (
             <SafeAreaView className="flex-1 justify-center items-center bg-background">
-                <Text className="text-text-secondary">
-                    Loading booking details...
-                </Text>
+                <Loader fullScreen={false} size="small" />
             </SafeAreaView>
         );
     }
@@ -69,13 +67,9 @@ export default function AppoinmentSuccess() {
                         Service: {appointment.serviceType}
                     </Text>
 
-
                     <Text className="text-sm text-text-primary mt-3 font-medium">
                         {formatDate(appointment.date)} at {formatTime(appointment.time)}
                     </Text>
-
-
-
                 </View>
 
                 <TouchableOpacity

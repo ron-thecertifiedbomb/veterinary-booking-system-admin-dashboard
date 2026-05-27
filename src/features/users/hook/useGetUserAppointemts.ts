@@ -1,12 +1,11 @@
 // src/features/appointments/hooks/useGetUserAppointments.ts
 
 import { useState } from "react";
-import Toast from "react-native-toast-message";
-
 import { api } from "@/utils/api";
 import { logger } from "@/utils/logger";
 import { getStorageItem } from "@/features/auth/storage";
-import { Appointment, GetUserAppointmentsResponse } from "@/features/users/types";
+import {  GetUserAppointmentsResponse } from "@/features/users/types";
+import { Appointment } from "@/features/appointment/types";
 
 
 export function useGetUserAppointments() {
@@ -43,7 +42,6 @@ export function useGetUserAppointments() {
       // ✅ store state
       setAppointments(response.data);
       setMessage(response.message);
-
       logger.info("Appointments fetched", {
         message: response.message,
         count: response.data.length,
@@ -52,16 +50,8 @@ export function useGetUserAppointments() {
       return response.data;
     } catch (err: any) {
       logger.error("Fetching appointments failed", err);
-
       const errorMessage = err?.message || "Failed to fetch user appointments";
-
       setError(errorMessage);
-
-      Toast.show({
-        type: "error",
-        text1: errorMessage,
-      });
-
       return null;
     } finally {
       setLoading(false);

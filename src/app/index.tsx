@@ -10,17 +10,12 @@ import { Platform } from "react-native";
 export default function Index() {
   const { loading, accessToken, user } = useAuthGuard();
 
-  // ✅ loading screen
   if (loading) {
     return <Loader fullScreen />;
   }
 
-
-  const isAdmin = user?.role === "ADMIN";
-
-
   // ✅ admin routing
-  if (isAdmin) {
+  if (user?.role !== "ADMIN") {
     return (
       <Redirect
         href={

@@ -1,5 +1,6 @@
 // src/features/appointments/components/Appointments.tsx
 
+import Loader from "@/components/common/Loader/Loader";
 import { useGetUserAppointments } from "@/features/users/hook/useGetUserAppointemts";
 import { formatDate, getTodayDate } from "@/utils/date";
 import { useEffect, useState } from "react";
@@ -23,9 +24,7 @@ export default function Appointments() {
     // ✅ Loading state
     if (loading) {
         return (
-            <View style={{ flex: 1, justifyContent: "center" }}>
-                <ActivityIndicator size="large" />
-            </View>
+            <Loader fullScreen={false} size="small" />
         );
     }
 

@@ -7,6 +7,7 @@ import { formatDate, getTodayDate } from "@/utils/date";
 import { useEffect, useState } from "react";
 import { Text, View, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
+import Loader from "@/components/common/Loader/Loader";
 
 export default function Home() {
 
@@ -53,14 +54,7 @@ export default function Home() {
 
     // ✅ ✅ ✅ FIXED: initial loading screen (NO FLICKER)
     if (initialLoading) {
-        return (
-            <View className="flex-1 justify-center items-center bg-background px-6">
-                <ActivityIndicator size="large" color="#111827" />
-                <Text className="text-sm text-text-secondary mt-3">
-                    Loading appointments...
-                </Text>
-            </View>
-        );
+        return <Loader fullScreen />   
     }
 
     return (
@@ -70,7 +64,7 @@ export default function Home() {
 
                 {/* ✅ HEADER */}
                 <View className="mb-6">
-                    <Text className="text-4xl font-semibold text-text-primary">
+                    <Text className="text-2xl lg:text-4xl font-semibold text-text-primary">
                         Book an appointment
                     </Text>
                     <Text className="text-sm leading-5 text-text-secondary mt-1.5">
