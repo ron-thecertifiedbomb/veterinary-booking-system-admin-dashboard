@@ -1,4 +1,4 @@
-import { API } from "@/utils/config/api";
+import { api } from "@/utils/api";
 import { logger } from "@/utils/logger";
 import { useState } from "react";
 
@@ -27,36 +27,10 @@ export const useCreateBooking = () => {
 
       logger.info("Creating booking", payload);
 
-      const res = await fetch(`${API}/api/vetappointments`, {
+      const data = await api<{ bookingCode: string }>("/api/vetappointments", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(payload),
       });
-
-      if (!res.ok) {
-        const errorBody = await res.text();
-
-        logger.error("Booking failed (status)", {
-          status: res.status,
-          body: errorBody,
-        });
-
-        let errorMessage = "An unexpected error occurred during booking.";
-        try {
-          const parsed = JSON.parse(errorBody);
-          if (parsed.message) errorMessage = parsed.message;
-        } catch {
-          // Fallback for non-JSON error bodies
-          if (errorBody) errorMessage = errorBody;
-        }
-
-        setError(errorMessage);
-        throw new Error(errorMessage);
-      }
-
-      const data = (await res.json()) as { bookingCode: string };
 
       const responseWithPayload: BookingResponse = {
         ...payload,
@@ -64,20 +38,13 @@ export const useCreateBooking = () => {
       };
 
       logger.info("Booking success", responseWithPayload);
-
       setSuccess(true);
-
       return responseWithPayload;
     } catch (err: any) {
-      // This will catch both the fetch error and the re-thrown error from the !res.ok block
-      logger.error("Error creating booking", err);
-      // Only set a generic network error if a specific one from the server wasn't already set
-      if (!error) {
-        setError(
-          err.message ||
-            "Could not connect to the server to create the booking.",
-        );
-      }
+      const errorMessage =
+        err.message || "Could not connect to the server to create the booking.";
+      logger.error("Error creating booking", { error: err });
+      setError(errorMessage);
       throw err;
     } finally {
       setLoading(false);

@@ -21,7 +21,9 @@ type Props = {
     checking: boolean;
     creating: boolean;
     error?: string | null;
+
     onClose: () => void;
+
     onSubmit: (data: {
         petName: string;
         serviceType: string;
@@ -29,6 +31,8 @@ type Props = {
         notes?: string;
     }) => Promise<void> | void;
 
+    date: string; // ✅ NEW (server date)
+    timeDisplay: string; // ✅ NEW (server time)
 };
 
 export default function BookingModal({

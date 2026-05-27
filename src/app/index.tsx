@@ -2,10 +2,8 @@
 
 import Loader from "@/components/common/Loader/Loader";
 import { useAuthGuard } from "@/features/auth/hooks/useAuthGuard";
-
 import { Redirect } from "expo-router";
 import { Platform } from "react-native";
-
 
 export default function Index() {
   const { loading, accessToken, user } = useAuthGuard();

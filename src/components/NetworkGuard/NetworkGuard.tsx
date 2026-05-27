@@ -1,10 +1,12 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, AppState, Platform, Text, TouchableOpacity, View } from 'react-native';
 
-interface NetworkGuardProps {
+import { useNetworkGuard } from '@/components/NetworkGuard/useNetworkGuard';
+import React from 'react';
+import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
+
+export interface NetworkGuardProps {
     children: React.ReactNode;
     /** The URL of the NestJS server-time endpoint */
-    apiUrl?: string;
+    apiUrl?: string; // This prop is passed to the useNetworkGuard hook
     /** Maximum allowed time difference in milliseconds (default: 60000ms / 1 minute) */
     maxTimeDifferenceMs?: number;
     /** Whether to run the checks at all. Defaults to true. */
@@ -17,118 +19,9 @@ interface NetworkGuardProps {
 
 export type GuardStatus = 'verifying' | 'connected' | 'offline' | 'time-desync' | 'offline-bypassed';
 
-const getBaseUrl = () => {
-    const env = (typeof process !== 'undefined' ? process.env : {}) as Record<string, string | undefined>;
-    return (
-        env.EXPO_PUBLIC_API_URL ||
-        env.REACT_APP_API_URL ||
-        env.NEXT_PUBLIC_API_URL ||
-        (Platform.OS === 'web' ? 'http://localhost:3000' : 'http://192.168.100.43:3000')
-    );
-};
-
-const defaultApiUrl = `${getBaseUrl().replace(/\/$/, '')}/api/server-time`;
-
-export const NetworkGuard: React.FC<NetworkGuardProps> = ({
-    children,
-    apiUrl = defaultApiUrl,
-    maxTimeDifferenceMs = 60000,
-    enabled = true,
-    allowOffline = false,
-    onStatusChange,
-}) => {
-    const [status, setStatus] = useState<GuardStatus>('verifying');
-    const [errorDetails, setErrorDetails] = useState<string>('');
-    const appState = useRef(AppState.currentState);
-    const statusRef = useRef(status);
-
-    useEffect(() => {
-        statusRef.current = status;
-        if (onStatusChange) onStatusChange(status);
-    }, [status, onStatusChange]);
-
-    const verifyConnection = useCallback(async () => {
-        setStatus('verifying');
-
-        // Abort controller prevents fetch from hanging forever on bad connections
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-        try {
-            const response = await fetch(apiUrl, {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' },
-                signal: controller.signal,
-            });
-
-            clearTimeout(timeoutId);
-
-            if (!response.ok) {
-                setStatus('offline');
-                setErrorDetails(`Server responded with status: ${response.status}`);
-                return;
-            }
-
-            const data = await response.json();
-
-            if (!data || !data.timestamp) {
-                setStatus('offline');
-                setErrorDetails('Received invalid data format from the server.');
-                return;
-            }
-
-            // Time validation check
-            const clientTimestamp = Date.now();
-            const timeDifference = Math.abs(clientTimestamp - data.timestamp);
-
-            if (timeDifference > maxTimeDifferenceMs) {
-                setStatus('time-desync');
-                setErrorDetails(
-                    `Your device clock is out of sync. Please adjust it to match the actual time. (Difference: ${Math.round(timeDifference / 1000)}s)`
-                );
-                return;
-            }
-
-            // All checks passed!
-            setStatus('connected');
-        } catch (error: any) {
-            clearTimeout(timeoutId);
-            setStatus('offline');
-            if (error.name === 'AbortError') {
-                setErrorDetails(`Connection timed out attempting to reach:\n${apiUrl}\n\nThe server took too long to respond.`);
-            } else {
-                setErrorDetails(`Failed to connect to:\n${apiUrl}\n\nPlease check your connection or ensure your backend server is running and reachable on this network.`);
-            }
-        }
-    }, [apiUrl, maxTimeDifferenceMs]);
-
-    useEffect(() => {
-        if (!enabled) {
-            setStatus('connected');
-            return;
-        }
-
-        verifyConnection();
-
-        // Listen for the app coming back to the foreground
-        const subscription = AppState.addEventListener('change', nextAppState => {
-            if (
-                appState.current.match(/inactive|background/) &&
-                nextAppState === 'active'
-            ) {
-                // Automatically re-verify when the user opens the app again, 
-                // unless they explicitly bypassed the offline block
-                if (statusRef.current !== 'offline-bypassed') {
-                    verifyConnection();
-                }
-            }
-            appState.current = nextAppState;
-        });
-
-        return () => {
-            subscription.remove();
-        };
-    }, [verifyConnection, enabled]);
+export const NetworkGuard: React.FC<NetworkGuardProps> = (props) => {
+    const { children, allowOffline = false } = props;
+    const { status, errorDetails, verifyConnection, setStatus } = useNetworkGuard(props);
 
     if (status === 'connected' || status === 'offline-bypassed') {
         return <>{children}</>;

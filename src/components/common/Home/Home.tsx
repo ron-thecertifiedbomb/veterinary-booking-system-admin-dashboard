@@ -119,13 +119,19 @@ export default function Home() {
                 checking={modalChecking || loading}
                 creating={creating}
                 error={fetchError || createError}
+
+                // ✅ ✅ ✅ ADD THESE
+                date={now.date}
+                timeDisplay={now.time}
+
                 onClose={() => {
                     setShowModal(false);
                     setModalChecking(false);
                 }}
+
                 onSubmit={async (formData) => {
                     if (!formData.time) {
-                        return; // optional: add Alert here
+                        return;
                     }
 
                     try {

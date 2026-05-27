@@ -7,6 +7,7 @@ import { useState } from "react";
 
 import {
     ActivityIndicator,
+    Alert,
     KeyboardAvoidingView,
     Platform,
     Pressable,
@@ -93,26 +94,43 @@ export default function Registration() {
             password,
         });
 
-        if (!response) return;
-
-        const isWeb = Platform.OS === "web";
-
-        if (response.user.role === "ADMIN") {
-            router.replace(
-                isWeb
-                    ? "/(admin-web)/dashboard"
-                    : "/(admin-app)/dashboard"
+        if (!response) {
+            Alert.alert(
+                "Registration Failed",
+                "Unable to create account. Please check your details and try again."
             );
             return;
         }
 
-        router.replace(
-            isWeb
-                ? "/(web)/home"
-                : "/(app)/home"
-        );
-    };
+        // ✅ OPTIONAL SUCCESS ALERT
+        Alert.alert(
+            "Success",
+            "Account created successfully!",
+            [
+                {
+                    text: "Continue",
+                    onPress: () => {
+                        const isWeb = Platform.OS === "web";
 
+                        if (response.user.role === "ADMIN") {
+                            router.replace(
+                                isWeb
+                                    ? "/(admin-web)/dashboard"
+                                    : "/(admin-app)/dashboard"
+                            );
+                            return;
+                        }
+
+                        router.replace(
+                            isWeb
+                                ? "/(web)/home"
+                                : "/(app)/home"
+                        );
+                    },
+                },
+            ]
+        );
+    }
     const noOutline = Platform.OS === "web"
         ? ({ outlineStyle: "none" } as any)
         : undefined;

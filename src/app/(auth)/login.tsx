@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
     ActivityIndicator,
+    Alert,
     KeyboardAvoidingView,
     Platform,
     Pressable,
@@ -52,25 +53,46 @@ export default function Login() {
         if (hasError) return;
 
         const response = await login({ email, password });
-        if (!response) return;
 
-        const isWeb = Platform.OS === "web";
-
-        if (response.user.role === "ADMIN") {
-            router.replace(
-                isWeb
-                    ? "/(admin-web)/dashboard"
-                    : "/(admin-app)/dashboard"
+        // ✅ ✅ ✅ ADD ALERT HERE
+        if (!response) {
+            Alert.alert(
+                "Login Failed",
+                "Invalid email or password. Please try again."
             );
             return;
         }
 
-        router.replace(
-            isWeb
-                ? "/(web)/home"
-                : "/(app)/home"
+        const isWeb = Platform.OS === "web";
+
+        Alert.alert(
+            "Login Successful",
+            "Welcome back!",
+            [
+                {
+                    text: "Continue",
+                    onPress: () => {
+                        if (response.user.role === "ADMIN") {
+                            router.replace(
+                                isWeb
+                                    ? "/(admin-web)/dashboard"
+                                    : "/(admin-app)/dashboard"
+                            );
+                            return;
+                        }
+
+                        router.replace(
+                            isWeb
+                                ? "/(web)/home"
+                                : "/(app)/home"
+                        );
+                    },
+                },
+            ]
         );
+
     };
+    
 
     return (
         <ScreenContainer>
