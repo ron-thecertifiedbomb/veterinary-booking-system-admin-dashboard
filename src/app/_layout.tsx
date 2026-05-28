@@ -7,10 +7,10 @@ import { Slot } from "expo-router";
 
 export default function RootLayout() {
   return (
+      <NetworkGuard allowOffline={false}>
     <AuthProvider>
-      {/* <NetworkGuard allowOffline={false}> */}
         <Slot />
-      {/* </NetworkGuard> */}
      </AuthProvider>
+      </NetworkGuard>
   );
 }

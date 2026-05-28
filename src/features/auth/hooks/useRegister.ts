@@ -32,41 +32,20 @@ export function useRegister() {
         body: JSON.stringify(payload),
       });
 
-      // ✅ store access token
       await setStorageItem("access_token", response.access_token);
-
-      // ✅ store user
       await setStorageItem("user", JSON.stringify(response.user));
-
-      logger.info("Access token stored");
-      logger.info("User session stored");
-      logger.info("Registration successful", response.user);
       setMessage(response.message);
-
- 
-      Toast.show({
-        type: "success",
-        text1: response.message,
-      });
 
       return response;
     } catch (err: any) {
-      logger.error("Registration failed", err);
 
       const errorMessage = err?.message || "Failed to register";
 
       setError(errorMessage);
 
-      Toast.show({
-        type: "error",
-        text1: errorMessage,
-      });
-
       return null;
     } finally {
       setLoading(false);
-
-      logger.info("Registration request completed");
     }
   };
 

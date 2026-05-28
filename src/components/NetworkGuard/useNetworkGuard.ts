@@ -1,5 +1,6 @@
 import { GuardStatus } from "@/components/NetworkGuard/NetworkGuard";
 import { API } from "@/utils/config/api";
+import { logger } from "@/utils/logger";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AppState } from "react-native";
@@ -36,6 +37,7 @@ export const useNetworkGuard = ({
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
     try {
+        logger.info("useNetworkGuard logs:");
       const response = await fetch(apiUrl, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
@@ -54,6 +56,8 @@ export const useNetworkGuard = ({
 
       // The server returns a nested object like { data: { timestamp: ... } }
       const serverTimestamp = data?.data?.timestamp;
+      logger.info("apiUrl:", apiUrl);
+    logger.info("", data.message);
 
       if (typeof serverTimestamp !== "number") {
         setStatus("offline");
@@ -63,7 +67,7 @@ export const useNetworkGuard = ({
 
       const clientTimestamp = Date.now();
       const timeDifference = Math.abs(clientTimestamp - serverTimestamp);
-
+     logger.info("Server timestamp:", serverTimestamp);
       if (timeDifference > maxTimeDifferenceMs) {
         setStatus("time-desync");
         setErrorDetails(

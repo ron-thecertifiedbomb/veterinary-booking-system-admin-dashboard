@@ -1,8 +1,7 @@
 import ScreenContainer from "@/components/common/layout/ScreenContainer";
-import { useRegister } from "@/features/auth/hooks/useRegister";
+import { useAuth } from "@/features/auth/providers/AuthProvider";
 import { showAlert } from "@/hooks/crossPlatformAlert";
 
-import { logger } from "@/utils/logger";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
@@ -36,10 +35,9 @@ export default function Registration() {
     const [passwordError, setPasswordError] = useState<string | null>(null);
     const [confirmPasswordError, setConfirmPasswordError] = useState<string | null>(null);
 
-    const { register, loading } = useRegister();
+    const { register, loading } = useAuth();
 
     const handleRegister = async () => {
-        logger.info("Submitting registration form");
 
         setNameError(null);
         setEmailError(null);
@@ -87,38 +85,22 @@ export default function Registration() {
 
         if (hasError) return;
 
-        const response = await register({
-            name,
-            email,
-            phone,
-            password,
-        });
+        try {
+            const response = await register({
+                name,
+                email,
+                phone,
+                password,
+            });
 
-        if (!response) {
-            const message =
-                "Unable to create account. Please check your details and try again.";
-            showAlert("Registration Failed", message);
-            return;
-        }
-
-        const handleSuccess = () => {
-            const isWeb = Platform.OS === "web";
-
-            if (response.user.role === "ADMIN") {
-                router.replace(
-                    isWeb
-                        ? "/(admin-web)/dashboard"
-                        : "/(admin-app)/(tabs)/dashboard"
-                );
-                return;
+            if (response) {
+                showAlert("", response.message);
+                // Note: AuthLayout handles redirect to /(web)/web-home or /(app)/(tabs)/home
+                // automatically once the user state is updated.
             }
-            router.replace(isWeb ? "/(web)/web-home" : "/(app)/(tabs)/home");
-        };
-        showAlert(
-            "Success",
-            "Account created successfully!",
-            handleSuccess
-        );
+        } catch (err: any) {
+            showAlert("", err.message);
+        }
     };
 
     const noOutline =

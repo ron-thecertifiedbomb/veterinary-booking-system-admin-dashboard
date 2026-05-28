@@ -10,7 +10,7 @@ import {
 
 import { AuthContextType } from "@/features/auth/providers/types";
 import { getStorageItem, removeStorageItem, setStorageItem } from "@/features/auth/storage";
-import { LoginPayload, LoginResponse } from "@/features/auth/types";
+import { LoginPayload, LoginResponse, RegisterPayload, RegisterResponse } from "@/features/auth/types";
 import { User } from "@/features/users/types";
 import { api } from "@/utils/api";
 import { logger } from "@/utils/logger";
@@ -76,8 +76,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await loadSession();
     }
 
-async function setSession(userData: User, accessToken: string) {
-    
+    async function setSession(userData: User, accessToken: string) {
+
         await Promise.all([
             setStorageItem("user", JSON.stringify(userData)),
             setStorageItem("access_token", accessToken),
@@ -135,6 +135,33 @@ async function setSession(userData: User, accessToken: string) {
         }
     }
 
+    async function register(payload: RegisterPayload): Promise<RegisterResponse | null> {
+        try {
+            setLoading(true);
+            logger.info("Attempting registration via AuthProvider", { email: payload.email });
+            const response = await api<RegisterResponse>("/api/vet/auth/register", {
+                method: "POST",
+                body: JSON.stringify(payload),
+            });
+            const normalizedUser = {
+                ...response.user,
+                userId: response.user.userId || response.user.id,
+            };
+            await setSession(normalizedUser, response.access_token);
+            logger.info("Registration successful via AuthProvider", normalizedUser);
+            return response;
+        } catch (err: any) {
+            logger.error("Registration failed via AuthProvider", err);
+            const errorMessage =
+                err?.response?.message ||
+                err?.message ||
+                "Registration failed";
+            throw new Error(errorMessage);
+        } finally {
+            setLoading(false);
+        }
+    }
+
 
     const value: AuthContextType = {
         user,
@@ -146,6 +173,7 @@ async function setSession(userData: User, accessToken: string) {
         setSession,
         logout,
         login,
+        register,
     };
 
     return (

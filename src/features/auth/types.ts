@@ -30,3 +30,9 @@ export type RegisterPayload = {
   name: string;
   phone?: string;
 };
+
+export type RegisterResponse = {
+  message: string;
+  access_token: string;
+  user: AuthUser;
+};
