@@ -48,8 +48,8 @@ export default function Pets() {
     if (loading) {
         return (
             <Loader
-                fullScreen={false}
-                size="small"
+                fullScreen
+         
             />
         );
     } 

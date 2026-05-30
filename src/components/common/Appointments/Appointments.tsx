@@ -48,10 +48,9 @@ export default function Appointments() {
     // ✅ Empty
  
     return (
-        <ScrollView
-            className="flex-1 bg-background"
-            contentContainerClassName="items-center px-6 pb-10"
-            keyboardShouldPersistTaps="handled"
+        <View
+            className="flex-1 bg-background items-center px-6 pb-10"
+         
         >
             <View className="w-full max-w-3xl pt-6 lg:p-14">
 
@@ -179,7 +178,7 @@ export default function Appointments() {
                     }}
                 />
             </View>
-        </ScrollView>
+        </View>
     );
 }
 ``

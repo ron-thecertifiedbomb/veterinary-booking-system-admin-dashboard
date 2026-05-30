@@ -34,15 +34,6 @@ export default function AppUserLayout() {
                 }}
             />
 
-            <Tabs.Screen
-                name="schedule"
-                options={{
-                    title: "Schedule",
-                    tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="calendar-outline" size={size} color={color} />
-                    ),
-                }}
-            />
 
             <Tabs.Screen
                 name="appointments"
