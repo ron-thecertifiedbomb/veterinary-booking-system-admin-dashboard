@@ -2,23 +2,24 @@
 
 import { Pet } from "@/features/pet/types";
 
-export type UserRole = "USER" | "ADMIN";
+export type UserRole = "USER" | "ADMIN" | "STAFF";
 
 export type AuthUser = {
-  id?: string; // ✅ from backend
-  userId?: string; // ✅ normalized version
-  name: string;
+  id: string;
   email: string;
+  name: string;
   phone: string;
   role: UserRole;
-  pets: Pet[];
-};
+  isActive: boolean;
+  specialization?: string;
+  department?: string;
 
+  pets?: Pet[];
+};
 export type LoginPayload = {
   email: string;
   password: string;
 };
-
 
 export type LoginResponse = {
   message: string;
@@ -27,7 +28,6 @@ export type LoginResponse = {
     user: AuthUser;
   };
 };
-
 
 export type RegisterPayload = {
   email: string;
